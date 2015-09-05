@@ -17,7 +17,7 @@ BLUE = (0,0,255)
 CYAN = (0,255,255)
 WHITE = (255,255,255)
 
-pixel_size = 64
+pixel_size = 68
 pixel_count = 4
 
 half = 0.5 * pixel_size
@@ -25,6 +25,10 @@ third = 1.0/3.0 * pixel_size
 quarter = 0.25 * pixel_size
 fifth = 1.0/5.0 * pixel_size
 sixth = 1.0/6.0 * pixel_size
+tenth = 1.0/10.0 * pixel_size
+twentieth = 1.0/20.0 * pixel_size
+thirtyfifth = 1.0/35.0 * pixel_size
+fiftieth = 1.0/50.0 * pixel_size
 one = float(pixel_size)
 
 def rndint(num):
@@ -88,6 +92,13 @@ class SubPixelBox(SubPixelBase):
         self.radius = radius*pixel_size
     def draw(self, surf):
         pygame.draw.rect(surf, self.color, [rndint(self.center[0]-self.radius),rndint(self.center[1]-self.radius),rndint(2*self.radius),rndint(2*self.radius)])
+class SubPixelPoly(SubPixelBase):
+    def __init__(self, color, points):
+        SubPixelBase.__init__(self, color)
+        self.points = points
+    def draw(self, surf):
+        ps = [rndpt(pt) for pt in self.points]
+        pygame.draw.polygon(surf, self.color, ps)
 class SubPixelCapsule(SubPixelBase):
     def __init__(self, color, p0,p1,radius):
         SubPixelBase.__init__(self, color)
@@ -165,7 +176,6 @@ class PixelSquareAltRGB(PixelSquareBase):
         self.subpixels.append( SubPixelCapsule(GREEN, (  sixth,one+fifth),(  sixth,one+one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (   half,one+fifth),(   half,one+one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(BLUE,  (5*sixth,one+fifth),(5*sixth,one+one-fifth), 0.12) )
-#TODO: VRGB, VBGR
 class PixelSquareRGGB(PixelSquareBase):  #Example size: 136?  #TODO: finish
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "RGGB")
@@ -189,9 +199,32 @@ class PixelSquareAltBGBR(PixelSquareBase):
         self.subpixels.append( SubPixelCapsule(BLUE,  (one-sixth,one+      sixth),(one-sixth,one+one-  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (    sixth,one+    quarter),(     half,one+    quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (    sixth,one+one-quarter),(     half,one+one-quarter), 0.12) )
-#TODO: PixelsSquarePenTileRGBW
-class PixelsSquarePenTileAltRGBW(PixelSquareBase): #TODO: refine
+class PixelsSquarePenTileAltRGWRGB(PixelSquareBase):
     #Samsung Galaxy Camera
+    def __init__(self):
+        PixelSquareBase.__init__(self, 2,2,"pentilealtRGWRGB")
+        data = "RGWRGB\nRGBRGW"
+        x=0; y=0; bias=-fiftieth
+        for c in data:
+            if c == "\n":
+                x = 0
+                y+=1; bias=-bias
+            else:
+                if   c == "R":
+                    self.subpixels.append( SubPixelCapsule(RED,   ((2*x+1.0)*sixth-bias,(4*y+1)*quarter),((2*x+1.0)*sixth+bias,(4*y+3)*quarter), 0.10) )
+                elif c == "G":
+                    self.subpixels.append( SubPixelCapsule(GREEN, ((2*x+0.7)*sixth-bias,(4*y+1)*quarter),((2*x+0.7)*sixth+bias,(4*y+3)*quarter), 0.10) )
+                elif c == "B":
+                    self.subpixels.append( SubPixelCapsule(BLUE,  ((2*x+0.7)*sixth-bias,(4*y+1)*quarter),((2*x+0.7)*sixth+bias,(4*y+3)*quarter), 0.15) )
+                else:
+                    self.subpixels.append( SubPixelPoly(WHITE, [
+                        ((2*x-0.2)*sixth-2.0*bias,(10*y+1)*tenth),
+                        ((2*x+1.8)*sixth-2.0*bias,(10*y+1)*tenth),
+                        ((2*x+1.8)*sixth+2.0*bias,(10*y+9)*tenth),
+                        ((2*x-0.2)*sixth+2.0*bias,(10*y+9)*tenth)
+                    ]) )
+                x += 1
+class PixelsSquarePenTileAltRGBW(PixelSquareBase): #TODO: refine
     def __init__(self):
         PixelSquareBase.__init__(self, 2,2,"pentilealtRGBW")
         self.subpixels.append( SubPixelCapsule(RED,   (      quarter,    quarter),(      quarter,    one-quarter), 0.12) )
@@ -249,11 +282,11 @@ def gen(pixel_set, blur=True):
             screen_square.blit([pixel_surf0,pixel_surf1][i==0 and j==0],(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
 
     return screen_square
-def gen_save(pixel_set):
-    screen_square = gen(pixel_set)
+def gen_save(pixel_set, blur=True):
+    screen_square = gen(pixel_set,blur)
     pixel_set.save(screen_square)
-##pixel_set = PixelSquareVRGB()
-##screen_square = gen(pixel_set)
+##pixel_set = PixelsSquarePenTileAltRGWRGB()
+##screen_square = gen(pixel_set,False)
 for pixel_set in [
 ##    PixelSquareBasic(),
 ##    PixelSquareRGB(),
@@ -261,9 +294,10 @@ for pixel_set in [
 ##    PixelSquareVRGB(),
 ##    PixelSquareVBGR(),
 ##    PixelSquareAltRGB(),
-    PixelSquareRGGB()
+##    PixelSquareRGGB(),
 ##    PixelSquareBGBR(),
 ##    PixelSquareAltBGBR(),
+    PixelsSquarePenTileAltRGWRGB()
 ##    PixelsSquarePenTileRGBW(),
 ##    PixelSquareFuji_X_Trans(),
 ##    PixelSquareXO_1()
