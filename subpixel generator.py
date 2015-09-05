@@ -144,6 +144,18 @@ class PixelSquareBGR(PixelSquareBase): #Example size: 130
         self.subpixels.append( SubPixelCapsule(BLUE,  (  sixth,fifth),(  sixth,one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (   half,fifth),(   half,one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (5*sixth,fifth),(5*sixth,one-fifth), 0.12) )
+class PixelSquareVRGB(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 1,1, "VRGB")
+        self.subpixels.append( SubPixelCapsule(RED,   (fifth,  sixth),(one-fifth,  sixth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (fifth,   half),(one-fifth,   half), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (fifth,5*sixth),(one-fifth,5*sixth), 0.12) )
+class PixelSquareVBGR(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 1,1, "VBGR")
+        self.subpixels.append( SubPixelCapsule(BLUE,  (fifth,  sixth),(one-fifth,  sixth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (fifth,   half),(one-fifth,   half), 0.12) )
+        self.subpixels.append( SubPixelCapsule(RED,   (fifth,5*sixth),(one-fifth,5*sixth), 0.12) )
 class PixelSquareAltRGB(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 1,2, "altRBG")
@@ -157,10 +169,10 @@ class PixelSquareAltRGB(PixelSquareBase):
 class PixelSquareRGGB(PixelSquareBase):  #Example size: 136?  #TODO: finish
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "RGGB")
-        self.subpixels.append( SubPixelDiamond(RED,   (  quarter,    quarter), 0.12) )
-        self.subpixels.append( SubPixelDiamond(GREEN, (3*quarter,    quarter), 0.12) )
-        self.subpixels.append( SubPixelDiamond(GREEN, (  quarter,one-quarter), 0.12) )
-        self.subpixels.append( SubPixelDiamond(BLUE,  (3*quarter,one-quarter), 0.12) )
+        self.subpixels.append( SubPixelDiamond(RED,   (  quarter,    quarter), 0.15) )
+        self.subpixels.append( SubPixelDiamond(GREEN, (3*quarter,    quarter), 0.15) )
+        self.subpixels.append( SubPixelDiamond(GREEN, (  quarter,one-quarter), 0.15) )
+        self.subpixels.append( SubPixelDiamond(BLUE,  (3*quarter,one-quarter), 0.15) )
 class PixelSquareBGBR(PixelSquareBase): #Example size: 42
     #Samsung Galaxy Note II
     def __init__(self):
@@ -240,19 +252,21 @@ def gen(pixel_set, blur=True):
 def gen_save(pixel_set):
     screen_square = gen(pixel_set)
     pixel_set.save(screen_square)
-##pixel_set = PixelSquareBasic()
+##pixel_set = PixelSquareVRGB()
 ##screen_square = gen(pixel_set)
 for pixel_set in [
-    PixelSquareBasic(),
-    PixelSquareRGB(),
-    PixelSquareBGR(),
-    PixelSquareAltRGB(),
-    PixelSquareRGGB(),
-    PixelSquareBGBR(),
-    PixelSquareAltBGBR(),
-    PixelsSquarePenTileRGBW(),
-    PixelSquareFuji_X_Trans(),
-    PixelSquareXO_1()
+##    PixelSquareBasic(),
+##    PixelSquareRGB(),
+##    PixelSquareBGR(),
+##    PixelSquareVRGB(),
+##    PixelSquareVBGR(),
+##    PixelSquareAltRGB(),
+    PixelSquareRGGB()
+##    PixelSquareBGBR(),
+##    PixelSquareAltBGBR(),
+##    PixelsSquarePenTileRGBW(),
+##    PixelSquareFuji_X_Trans(),
+##    PixelSquareXO_1()
 ]:
     gen_save(pixel_set)
 
