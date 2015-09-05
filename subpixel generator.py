@@ -144,6 +144,15 @@ class PixelSquareBGR(PixelSquareBase): #Example size: 130
         self.subpixels.append( SubPixelCapsule(BLUE,  (  sixth,fifth),(  sixth,one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (   half,fifth),(   half,one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (5*sixth,fifth),(5*sixth,one-fifth), 0.12) )
+class PixelSquareAltRGB(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 1,2, "altRBG")
+        self.subpixels.append( SubPixelCapsule(RED,   (  sixth,    fifth),(  sixth,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (   half,    fifth),(   half,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (5*sixth,    fifth),(5*sixth,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (  sixth,one+fifth),(  sixth,one+one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(RED,   (   half,one+fifth),(   half,one+one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (5*sixth,one+fifth),(5*sixth,one+one-fifth), 0.12) )
 #TODO: VRGB, VBGR
 class PixelSquareRGGB(PixelSquareBase):  #Example size: 136?  #TODO: finish
     def __init__(self):
@@ -168,10 +177,11 @@ class PixelSquareAltBGBR(PixelSquareBase):
         self.subpixels.append( SubPixelCapsule(BLUE,  (one-sixth,one+      sixth),(one-sixth,one+one-  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (    sixth,one+    quarter),(     half,one+    quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (    sixth,one+one-quarter),(     half,one+one-quarter), 0.12) )
-class PixelsSquarePenTileRGBW(PixelSquareBase): #TODO: refine
+#TODO: PixelsSquarePenTileRGBW
+class PixelsSquarePenTileAltRGBW(PixelSquareBase): #TODO: refine
     #Samsung Galaxy Camera
     def __init__(self):
-        PixelSquareBase.__init__(self, 2,2,"pentileRGBW")
+        PixelSquareBase.__init__(self, 2,2,"pentilealtRGBW")
         self.subpixels.append( SubPixelCapsule(RED,   (      quarter,    quarter),(      quarter,    one-quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (    3*quarter,    quarter),(    3*quarter,    one-quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(BLUE,  (one+  quarter,    quarter),(one+  quarter,    one-quarter), 0.12) )
@@ -183,15 +193,6 @@ class PixelsSquarePenTileRGBW(PixelSquareBase): #TODO: refine
 #TODO: PenTileRGBG
     #Google Nexus One
     #Samsung Galaxy S3
-class PixelSquareAltRBG(PixelSquareBase):
-    def __init__(self):
-        PixelSquareBase.__init__(self, 1,2, "pentileRGBG")
-        self.subpixels.append( SubPixelCapsule(RED,   (  sixth,    fifth),(  sixth,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(GREEN, (   half,    fifth),(   half,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(BLUE,  (5*sixth,    fifth),(5*sixth,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(GREEN, (  sixth,one+fifth),(  sixth,one+one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(RED,   (   half,one+fifth),(   half,one+one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(BLUE,  (5*sixth,one+fifth),(5*sixth,one+one-fifth), 0.12) )
 #TODO: RotTris
 #TODO: DiamondRGGB
 #TODO: Bayer filters
@@ -245,11 +246,11 @@ for pixel_set in [
     PixelSquareBasic(),
     PixelSquareRGB(),
     PixelSquareBGR(),
+    PixelSquareAltRGB(),
     PixelSquareRGGB(),
     PixelSquareBGBR(),
     PixelSquareAltBGBR(),
     PixelsSquarePenTileRGBW(),
-    PixelSquareAltRBG(),
     PixelSquareFuji_X_Trans(),
     PixelSquareXO_1()
 ]:
