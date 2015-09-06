@@ -15,6 +15,8 @@ RED = (255,0,0)
 GREEN = (0,255,0)
 BLUE = (0,0,255)
 CYAN = (0,255,255)
+YELLOW = (255,255,0)
+MAGENTA = (255,0,255)
 WHITE = (255,255,255)
 
 pixel_size = 64
@@ -25,6 +27,7 @@ third = 1.0/3.0 * pixel_size
 quarter = 0.25 * pixel_size
 fifth = 1.0/5.0 * pixel_size
 sixth = 1.0/6.0 * pixel_size
+eighth = 0.125 * pixel_size
 tenth = 1.0/10.0 * pixel_size
 twentieth = 1.0/20.0 * pixel_size
 thirtyfifth = 1.0/35.0 * pixel_size
@@ -250,7 +253,53 @@ class PixelsSquarePenTileAltRGBG(PixelSquareBase):
                 self.subpixels.append( SubPixelCapsule(GREEN, (one*i+5*sixth,one*j+quarter),(one*i+5*sixth,one*j+one-quarter), 0.065) )
 #TODO: RotTris
 #TODO: DiamondRGGB
-#TODO: Bayer filters
+class PixelSquareBayer2Base(PixelSquareBase):
+    def __init__(self, name, colors):
+        PixelSquareBase.__init__(self, 1,1, "bayer_"+name)
+        self.subpixels.append( SubPixelBox(colors[0], (  quarter,  quarter), 0.20) )
+        self.subpixels.append( SubPixelBox(colors[1], (3*quarter,  quarter), 0.20) )
+        self.subpixels.append( SubPixelBox(colors[2], (  quarter,3*quarter), 0.20) )
+        self.subpixels.append( SubPixelBox(colors[3], (3*quarter,3*quarter), 0.20) )
+class PixelSquareBayerGRBG(PixelSquareBayer2Base):
+    def __init__(self): PixelSquareBayer2Base.__init__(self, "GRBG", [GREEN,RED,BLUE,GREEN])
+class PixelSquareBayerWRBG(PixelSquareBayer2Base):
+    def __init__(self): PixelSquareBayer2Base.__init__(self, "WRBG", [WHITE,RED,BLUE,GREEN])
+class PixelSquareBayerCRBG(PixelSquareBayer2Base):
+    def __init__(self): PixelSquareBayer2Base.__init__(self, "CRBG", [CYAN,RED,BLUE,GREEN])
+class PixelSquareBayerCYGM(PixelSquareBayer2Base):
+    def __init__(self): PixelSquareBayer2Base.__init__(self, "CYGM", [CYAN,YELLOW,GREEN,MAGENTA])
+class PixelSquareBayerCYYM(PixelSquareBayer2Base):
+    def __init__(self): PixelSquareBayer2Base.__init__(self, "CYYM", [CYAN,YELLOW,YELLOW,MAGENTA])
+class PixelSquareBayer4Base(PixelSquareBase):
+    def __init__(self, name, colors):
+        PixelSquareBase.__init__(self, 1,1, "bayer_"+name)
+        for j in range(4):
+            for i in range(4):
+                self.subpixels.append( SubPixelBox(colors[j][i], ((2*i+1)*eighth,(2*j+1)*eighth), 0.125*0.8) )
+class PixelSquareKodakRGBW4a(PixelSquareBayer4Base):
+    def __init__(self):
+        PixelSquareBayer4Base.__init__(self, "kodak_RGBW_4a", [
+            [WHITE,BLUE,WHITE,GREEN],
+            [BLUE,WHITE,GREEN,WHITE],
+            [WHITE,GREEN,WHITE,RED],
+            [GREEN,WHITE,RED,WHITE]
+        ])
+class PixelSquareKodakRGBW4b(PixelSquareBayer4Base):
+    def __init__(self):
+        PixelSquareBayer4Base.__init__(self, "kodak_RGBW_4b", [
+            [GREEN,WHITE,RED,WHITE],
+            [GREEN,WHITE,RED,WHITE],
+            [BLUE,WHITE,GREEN,WHITE],
+            [BLUE,WHITE,GREEN,WHITE]
+        ])
+class PixelSquareKodakRGBW4c(PixelSquareBayer4Base):
+    def __init__(self):
+        PixelSquareBayer4Base.__init__(self, "kodak_RGBW_4c", [
+            [GREEN,WHITE,RED,WHITE],
+            [BLUE,WHITE,GREEN,WHITE],
+            [GREEN,WHITE,RED,WHITE],
+            [BLUE,WHITE,GREEN,WHITE]
+        ])
 class PixelSquareFuji_X_Trans(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 2,2, "bayer_fuji_xtrans")
@@ -295,25 +344,33 @@ def gen(pixel_set, blur=True):
 def gen_save(pixel_set, blur=True):
     screen_square = gen(pixel_set,blur)
     pixel_set.save(screen_square)
-##pixel_set = PixelsSquarePenTileAltRGBG()
-##screen_square = gen(pixel_set,False)
-for pixel_set in [
-    PixelSquareBasic(),
-    PixelSquareRGB(),
-    PixelSquareBGR(),
-    PixelSquareVRGB(),
-    PixelSquareVBGR(),
-    PixelSquareAltRGB(),
-    PixelSquareRGGB(),
-    PixelSquareBGBR(),
-    PixelSquareAltBGBR(),
-    PixelsSquarePenTileAltRGWRGB(),
-    PixelsSquarePenTileAltRGBW(),
-    PixelsSquarePenTileAltRGBG(),
-    PixelSquareFuji_X_Trans(),
-    PixelSquareXO_1()
-]:
-    gen_save(pixel_set)
+pixel_set = PixelSquareBayerGRBG()
+screen_square = gen(pixel_set,False)
+##for pixel_set in [
+##    PixelSquareBasic(),
+##    PixelSquareRGB(),
+##    PixelSquareBGR(),
+##    PixelSquareVRGB(),
+##    PixelSquareVBGR(),
+##    PixelSquareAltRGB(),
+##    PixelSquareRGGB(),
+##    PixelSquareBGBR(),
+##    PixelSquareAltBGBR(),
+##    PixelsSquarePenTileAltRGWRGB(),
+##    PixelsSquarePenTileAltRGBW(),
+##    PixelsSquarePenTileAltRGBG(),
+##    PixelSquareBayerGRBG(),
+##    PixelSquareBayerWRBG(),
+##    PixelSquareBayerCRBG(),
+##    PixelSquareBayerCYGM(),
+##    PixelSquareBayerCYYM(),
+##    PixelSquareKodakRGBW4a(),
+##    PixelSquareKodakRGBW4b(),
+##    PixelSquareKodakRGBW4c(),
+##    PixelSquareFuji_X_Trans(),
+##    PixelSquareXO_1()
+##]:
+##    gen_save(pixel_set)
 
 def get_input():
     keys_pressed = pygame.key.get_pressed()
