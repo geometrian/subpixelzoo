@@ -17,7 +17,7 @@ BLUE = (0,0,255)
 CYAN = (0,255,255)
 WHITE = (255,255,255)
 
-pixel_size = 68
+pixel_size = 64
 pixel_count = 4
 
 half = 0.5 * pixel_size
@@ -235,9 +235,19 @@ class PixelsSquarePenTileAltRGBW(PixelSquareBase): #TODO: refine
         self.subpixels.append( SubPixelCapsule(WHITE, (    3*quarter,one+quarter),(    3*quarter,one+one-quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (one+  quarter,one+quarter),(one+  quarter,one+one-quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (one+3*quarter,one+quarter),(one+3*quarter,one+one-quarter), 0.12) )
-#TODO: PenTileRGBG
+class PixelsSquarePenTileAltRGBG(PixelSquareBase):
     #Google Nexus One
     #Samsung Galaxy S3
+    #Samsung Galaxy Nexus
+    def __init__(self):
+        PixelSquareBase.__init__(self, 2,2,"pentilealtRGBG")
+        for j in range(2):
+            for i in range(2):
+                if i == j:
+                    self.subpixels.append( SubPixelBox(RED,  (one*i+third,one*j+half), 0.25) )
+                else:
+                    self.subpixels.append( SubPixelBox(BLUE, (one*i+third,one*j+half), 0.20) )
+                self.subpixels.append( SubPixelCapsule(GREEN, (one*i+5*sixth,one*j+quarter),(one*i+5*sixth,one*j+one-quarter), 0.065) )
 #TODO: RotTris
 #TODO: DiamondRGGB
 #TODO: Bayer filters
@@ -285,22 +295,23 @@ def gen(pixel_set, blur=True):
 def gen_save(pixel_set, blur=True):
     screen_square = gen(pixel_set,blur)
     pixel_set.save(screen_square)
-##pixel_set = PixelsSquarePenTileAltRGWRGB()
+##pixel_set = PixelsSquarePenTileAltRGBG()
 ##screen_square = gen(pixel_set,False)
 for pixel_set in [
-##    PixelSquareBasic(),
-##    PixelSquareRGB(),
-##    PixelSquareBGR(),
-##    PixelSquareVRGB(),
-##    PixelSquareVBGR(),
-##    PixelSquareAltRGB(),
-##    PixelSquareRGGB(),
-##    PixelSquareBGBR(),
-##    PixelSquareAltBGBR(),
-    PixelsSquarePenTileAltRGWRGB()
-##    PixelsSquarePenTileRGBW(),
-##    PixelSquareFuji_X_Trans(),
-##    PixelSquareXO_1()
+    PixelSquareBasic(),
+    PixelSquareRGB(),
+    PixelSquareBGR(),
+    PixelSquareVRGB(),
+    PixelSquareVBGR(),
+    PixelSquareAltRGB(),
+    PixelSquareRGGB(),
+    PixelSquareBGBR(),
+    PixelSquareAltBGBR(),
+    PixelsSquarePenTileAltRGWRGB(),
+    PixelsSquarePenTileAltRGBW(),
+    PixelsSquarePenTileAltRGBG(),
+    PixelSquareFuji_X_Trans(),
+    PixelSquareXO_1()
 ]:
     gen_save(pixel_set)
 
