@@ -17,13 +17,20 @@ icon = pygame.Surface((1,1)); icon.set_alpha(0); pygame.display.set_icon(icon)
 pygame.display.set_caption("Subpixel Generator")
 surface = pygame.display.set_mode(screen_size)
 
-RED = (255,0,0)
-GREEN = (0,255,0)
-BLUE = (0,0,255)
-CYAN = (0,255,255)
-YELLOW = (255,255,0)
-MAGENTA = (255,0,255)
-WHITE = (255,255,255)
+##RED = (255,0,0)
+##GREEN = (0,255,0)
+##BLUE = (0,0,255)
+##CYAN = (0,255,255)
+##YELLOW = (255,255,0)
+##MAGENTA = (255,0,255)
+##WHITE = (255,255,255)
+RED = (208,25,3)
+GREEN = (41,200,20)
+BLUE = (0,43,208)
+CYAN = (40,208,208)
+YELLOW = (208,208,40)
+MAGENTA = (208,40,208)
+WHITE = (208,208,208)
 
 ##pixel_size = 64
 pixel_size = 256
@@ -160,6 +167,18 @@ class PixelBase(object):
         self.color_outline = YELLOW
     def draw(self, surf):
         for s in self.subpixels: s.draw(surf)
+    def draw_outline_rect(self, surf, rect):
+        #Can't use this; thick lines leave an undrawn space at bottom right.
+        #pygame.draw.rect(surf, self.color_outline, rect, outline_size)
+        #Instead, do it manually.
+        dx = dy = outline_size // 2 - 1
+        for p0,p1 in [
+            ((rect[0]-dx,     rect[1]        ),(rect[0]+rect[2]+dx,  rect[1]             )),
+            ((rect[0]-dx,     rect[1]+rect[3]),(rect[0]+rect[2]+dx+1,rect[1]+rect[3]     )),
+            ((rect[0],        rect[1]-dy     ),(rect[0],             rect[1]+rect[3]+dy  )),
+            ((rect[0]+rect[2],rect[1]-dy     ),(rect[0]+rect[2],     rect[1]+rect[3]+dy+1))
+        ]:
+            pygame.draw.line(surf, self.color_outline, p0,p1, outline_size)
     def save(self, surf):
         pygame.image.save(surf, self.name+".png")
         pygame.image.save(pygame.transform.scale(surf,(128,128)), self.name+"_sm.png")
@@ -171,7 +190,7 @@ class PixelSquareBase(PixelBase):
     def draw_outlines(self, surf):
         for j in range(self.pattern_h):
             for i in range(self.pattern_w):
-                pygame.draw.rect(surf, self.color_outline, (i*pixel_size,j*pixel_size,pixel_size,pixel_size), outline_size)
+                self.draw_outline_rect(surf, (i*pixel_size,j*pixel_size,pixel_size,pixel_size))
 class PixelDiamondBase(PixelBase):
     def __init__(self, pattern_w,pattern_h, name):
         PixelBase.__init__(self, pattern_w,pattern_h, "diamond_"+name)
@@ -402,8 +421,8 @@ class PixelSquareFujiRGGBEXR(PixelDiamondBase):
 ##        self.subpixels.append( SubPixelCircle(GREEN, (  quarter+shift,one-quarter+shift), 0.15) )
 ##        self.subpixels.append( SubPixelCircle(BLUE,  (3*quarter+shift,one-quarter+shift), 0.15) )
     def draw_outlines(self, surf):
-        pygame.draw.rect(surf, self.color_outline, (      0,      0,one,one), outline_size)
-        pygame.draw.rect(surf, self.color_outline, (quarter,quarter,one,one), outline_size)
+        self.draw_outline_rect(surf, (      0,      0,one,one))
+        self.draw_outline_rect(surf, (quarter,quarter,one,one))
 class PixelSquareXO_1(PixelSquareBase): #Example size: 136
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "xo-1")
