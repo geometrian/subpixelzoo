@@ -170,15 +170,15 @@ class PixelSquareVBGR(PixelSquareBase):
         self.subpixels.append( SubPixelCapsule(BLUE,  (fifth,  sixth),(one-fifth,  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (fifth,   half),(one-fifth,   half), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (fifth,5*sixth),(one-fifth,5*sixth), 0.12) )
-class PixelSquareAltRGB(PixelSquareBase):
+class PixelSquareAltRBG(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 1,2, "altRBG")
         self.subpixels.append( SubPixelCapsule(RED,   (  sixth,    fifth),(  sixth,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(GREEN, (   half,    fifth),(   half,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(BLUE,  (5*sixth,    fifth),(5*sixth,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (   half,    fifth),(   half,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (5*sixth,    fifth),(5*sixth,    one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (  sixth,one+fifth),(  sixth,one+one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(RED,   (   half,one+fifth),(   half,one+one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(BLUE,  (5*sixth,one+fifth),(5*sixth,one+one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (   half,one+fifth),(   half,one+one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(RED,   (5*sixth,one+fifth),(5*sixth,one+one-fifth), 0.12) )
 class PixelSquareRGGB(PixelSquareBase):  #Example size: 136?  #TODO: finish
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "RGGB")
@@ -344,15 +344,16 @@ def gen(pixel_set, blur=True):
 def gen_save(pixel_set, blur=True):
     screen_square = gen(pixel_set,blur)
     pixel_set.save(screen_square)
-pixel_set = PixelSquareBayerGRBG()
-screen_square = gen(pixel_set,False)
+    return screen_square
+pixel_set = PixelSquareAltRBG()
+screen_square = gen_save(pixel_set,True)
 ##for pixel_set in [
 ##    PixelSquareBasic(),
 ##    PixelSquareRGB(),
 ##    PixelSquareBGR(),
 ##    PixelSquareVRGB(),
 ##    PixelSquareVBGR(),
-##    PixelSquareAltRGB(),
+##    PixelSquareAltRBG(),
 ##    PixelSquareRGGB(),
 ##    PixelSquareBGBR(),
 ##    PixelSquareAltBGBR(),
