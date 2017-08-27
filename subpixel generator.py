@@ -1,5 +1,11 @@
 import pygame
 from pygame.locals import *
+try:
+    import scipy.ndimage
+    with_scipy = True
+except:
+    print("Warning: SciPy not available!  Blurring will be very slow.")
+    with_scipy = False
 import sys, os, traceback
 from math import *
 if sys.platform in ["win32","win64"]: os.environ["SDL_VIDEO_CENTERED"]="1"
@@ -41,49 +47,58 @@ def rndpt(pt,bias=(0,0)):
     return (rndint(pt[0]+bias[0]),rndint(pt[1]+bias[1]))
 
 def get_blurred(surf):
-    w,h = surf.get_size()
-    def mod(pt):
-        if   pt[0] <0: pt[0]+=w
-        elif pt[0]>=w: pt[0]-=w
-        if   pt[1] <0: pt[1]+=h
-        elif pt[1]>=h: pt[1]-=h
-        return pt
-    result = surf.copy()
-    
-    s = pixel_size / 16.0
-    _nfalloff = -0.1
-    
-    _term2s = e**(_nfalloff*s*s)
-    table = []
-    table_size = int(s) + 2
-    for j in range(table_size):
-        row = []
-        for i in range(table_size):
-            weight = (e**(_nfalloff*i*i)-_term2s) * (e**(_nfalloff*j*j)-_term2s)
-            if weight<0.0: weight=0.0
-            row.append(weight)
-        table.append(row)
-    
-    for j in range(h):
-        for i in range(w):
-            pt = [i,j]
-            start = [int(pt[0]-s),  int(pt[1]-s)  ]
-            end   = [int(pt[0]+s)+1,int(pt[1]+s)+1]
-            sample_sum = [0.0,0.0,0.0]
-            weight_sum = 0.0
-            for jj in range(start[1],end[1]+1,1):
-                dy = abs(j - jj)
-                for ii in range(start[0],end[0]+1,1):
-                    dx = abs(i - ii)
-                    weight = table[dy][dx]
-                    sample = surf.get_at(mod( [ii,jj] ))
-                    sample_sum[0] += weight*sample[0]
-                    sample_sum[1] += weight*sample[1]
-                    sample_sum[2] += weight*sample[2]
-                    weight_sum += weight
-            blurred = [rndint(sample_sum[0]/weight_sum), rndint(sample_sum[1]/weight_sum), rndint(sample_sum[2]/weight_sum)]
-            result.set_at((i,j),blurred)
-    return result
+    if with_scipy:
+        s = pixel_size / 32.0
+        arr = pygame.surfarray.array3d(surf)
+        arr = scipy.ndimage.gaussian_filter(arr, sigma=(s,s,0), order=0, mode="wrap")
+        result = pygame.surfarray.make_surface(arr)
+        return result
+    else:
+        #*Much* slower, and probably not quite the same.
+
+        w,h = surf.get_size()
+        def mod(pt):
+            if   pt[0] <0: pt[0]+=w
+            elif pt[0]>=w: pt[0]-=w
+            if   pt[1] <0: pt[1]+=h
+            elif pt[1]>=h: pt[1]-=h
+            return pt
+        result = surf.copy()
+
+        s = pixel_size / 16.0
+        _nfalloff = -0.1
+
+        _term2s = e**(_nfalloff*s*s)
+        table = []
+        table_size = int(s) + 2
+        for j in range(table_size):
+            row = []
+            for i in range(table_size):
+                weight = (e**(_nfalloff*i*i)-_term2s) * (e**(_nfalloff*j*j)-_term2s)
+                if weight<0.0: weight=0.0
+                row.append(weight)
+            table.append(row)
+
+        for j in range(h):
+            for i in range(w):
+                pt = [i,j]
+                start = [int(pt[0]-s),  int(pt[1]-s)  ]
+                end   = [int(pt[0]+s)+1,int(pt[1]+s)+1]
+                sample_sum = [0.0,0.0,0.0]
+                weight_sum = 0.0
+                for jj in range(start[1],end[1]+1,1):
+                    dy = abs(j - jj)
+                    for ii in range(start[0],end[0]+1,1):
+                        dx = abs(i - ii)
+                        weight = table[dy][dx]
+                        sample = surf.get_at(mod( [ii,jj] ))
+                        sample_sum[0] += weight*sample[0]
+                        sample_sum[1] += weight*sample[1]
+                        sample_sum[2] += weight*sample[2]
+                        weight_sum += weight
+                blurred = [rndint(sample_sum[0]/weight_sum), rndint(sample_sum[1]/weight_sum), rndint(sample_sum[2]/weight_sum)]
+                result.set_at((i,j),blurred)
+        return result
 
 #Subpixel types
 class SubPixelBase(object):
