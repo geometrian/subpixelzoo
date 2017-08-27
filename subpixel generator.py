@@ -25,8 +25,14 @@ YELLOW = (255,255,0)
 MAGENTA = (255,0,255)
 WHITE = (255,255,255)
 
-pixel_size = 64
+##pixel_size = 64
+pixel_size = 256
 pixel_count = 4
+
+if pixel_size == 64:
+    outline_size = 1
+elif pixel_size == 256:
+    outline_size = 4
 
 half = 0.5 * pixel_size
 third = 1.0/3.0 * pixel_size
@@ -111,6 +117,13 @@ class SubPixelBox(SubPixelBase):
         self.radius = radius*pixel_size
     def draw(self, surf):
         pygame.draw.rect(surf, self.color, [rndint(self.center[0]-self.radius),rndint(self.center[1]-self.radius),rndint(2*self.radius),rndint(2*self.radius)])
+class SubPixelCircle(SubPixelBase):
+    def __init__(self, color, center,radius):
+        SubPixelBase.__init__(self, color)
+        self.center = ( rndint(center[0]), rndint(center[1]) )
+        self.radius = rndint(radius*pixel_size)
+    def draw(self, surf):
+        pygame.draw.circle(surf, self.color, self.center, self.radius)
 class SubPixelPoly(SubPixelBase):
     def __init__(self, color, points):
         SubPixelBase.__init__(self, color)
@@ -119,7 +132,7 @@ class SubPixelPoly(SubPixelBase):
         ps = [rndpt(pt) for pt in self.points]
         pygame.draw.polygon(surf, self.color, ps)
 class SubPixelCapsule(SubPixelBase):
-    def __init__(self, color, p0,p1,radius, line_width_boost):
+    def __init__(self, color, p0,p1,radius, line_width_boost=1.0):
         SubPixelBase.__init__(self, color)
         self.p0 = p0
         self.p1 = p1
@@ -144,10 +157,12 @@ class PixelBase(object):
         self.pattern_w = pattern_w
         self.pattern_h = pattern_h
         self.name = name
+        self.color_outline = YELLOW
     def draw(self, surf):
         for s in self.subpixels: s.draw(surf)
     def save(self, surf):
         pygame.image.save(surf, self.name+".png")
+        pygame.image.save(pygame.transform.scale(surf,(128,128)), self.name+"_sm.png")
 class PixelSquareBase(PixelBase):
     def __init__(self, pattern_w,pattern_h, name):
         PixelBase.__init__(self, pattern_w,pattern_h, "square_"+name)
@@ -156,7 +171,7 @@ class PixelSquareBase(PixelBase):
     def draw_outlines(self, surf):
         for j in range(self.pattern_h):
             for i in range(self.pattern_w):
-                pygame.draw.rect(surf, (255,0,0), (i*pixel_size,j*pixel_size,pixel_size,pixel_size), 1)
+                pygame.draw.rect(surf, self.color_outline, (i*pixel_size,j*pixel_size,pixel_size,pixel_size), outline_size)
 class PixelDiamondBase(PixelBase):
     def __init__(self, pattern_w,pattern_h, name):
         PixelBase.__init__(self, pattern_w,pattern_h, "diamond_"+name)
@@ -167,13 +182,14 @@ class PixelDiamondBase(PixelBase):
         points = [(rndint(x*pixel_size),rndint(y*pixel_size)) for x,y in points]
         for j in range(self.pattern_h):
             for i in range(self.pattern_w):
-                pygame.draw.lines(surf, (255,0,0), True, points, 1)
+                pygame.draw.lines(surf, self.color_outline, True, points, outline_size)
 
 #Pixel Geometries
 class PixelSquareBasic(PixelSquareBase): #No example
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "basic")
         self.subpixels.append( SubPixelBox(WHITE, (half,half),half) )
+        self.color_outline = RED
 class PixelSquareRGB(PixelSquareBase): #Example size: 130
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "RGB")
@@ -365,6 +381,29 @@ class PixelSquareFuji_X_Trans(PixelSquareBase):
                 else:        c= BLUE
                 self.subpixels.append( SubPixelBox(c, ((2*x+1)*sixth,(2*y+1)*sixth), 0.10) )
                 x += 1
+class PixelSquareFujiRGGBEXR(PixelDiamondBase):
+    def __init__(self):
+        PixelDiamondBase.__init__(self, 1,1, "RGGBEXR")
+        self.name = "square_RGGBEXR"
+        self.subpixels.append( SubPixelCircle(RED,   (  quarter,    quarter), 0.15) )
+        self.subpixels.append( SubPixelCircle(GREEN, (3*quarter,    quarter), 0.15) )
+        self.subpixels.append( SubPixelCircle(GREEN, (  quarter,one-quarter), 0.15) )
+        self.subpixels.append( SubPixelCircle(BLUE,  (3*quarter,one-quarter), 0.15) )
+##class PixelSquareFujiRGGBEXR(PixelSquareBase):
+##    def __init__(self):
+##        PixelSquareBase.__init__(self, 1,1, "RGGBEXR")
+##        shift = quarter
+##        self.subpixels.append( SubPixelCircle(RED,   (  quarter,    quarter), 0.15) )
+##        self.subpixels.append( SubPixelCircle(GREEN, (3*quarter,    quarter), 0.15) )
+##        self.subpixels.append( SubPixelCircle(GREEN, (  quarter,one-quarter), 0.15) )
+##        self.subpixels.append( SubPixelCircle(BLUE,  (3*quarter,one-quarter), 0.15) )
+##        self.subpixels.append( SubPixelCircle(RED,   (  quarter+shift,    quarter+shift), 0.15) )
+##        self.subpixels.append( SubPixelCircle(GREEN, (3*quarter+shift,    quarter+shift), 0.15) )
+##        self.subpixels.append( SubPixelCircle(GREEN, (  quarter+shift,one-quarter+shift), 0.15) )
+##        self.subpixels.append( SubPixelCircle(BLUE,  (3*quarter+shift,one-quarter+shift), 0.15) )
+    def draw_outlines(self, surf):
+        pygame.draw.rect(surf, self.color_outline, (      0,      0,one,one), outline_size)
+        pygame.draw.rect(surf, self.color_outline, (quarter,quarter,one,one), outline_size)
 class PixelSquareXO_1(PixelSquareBase): #Example size: 136
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "xo-1")
@@ -387,60 +426,72 @@ class PixelDiamondRGGB(PixelDiamondBase):
         self.subpixels.append( SubPixelDiamond(BLUE,  (     half,one-quarter), 0.15) )
 
 def gen(pixel_set, blur=True):
-    pixel_surf0 = pygame.Surface(( pixel_size*pixel_set.pattern_w, pixel_size*pixel_set.pattern_h ))
-    pixel_set.draw(pixel_surf0)
-    if blur: pixel_surf0=get_blurred(pixel_surf0)
-    pixel_surf1 = pixel_surf0.copy()
-    pixel_set.draw_outlines(pixel_surf1)
+    print("Generating \""+pixel_set.name+"\"")
+
+    pixel_surf = pygame.Surface(( pixel_size*pixel_set.pattern_w, pixel_size*pixel_set.pattern_h ))
+    pixel_set.draw(pixel_surf)
+    if blur:
+        pixel_surf = get_blurred(pixel_surf)
 
     screen_square = pygame.Surface((pixel_count*pixel_size,pixel_count*pixel_size))
     if isinstance(pixel_set,PixelSquareBase):
         for j in range(pixel_count):
             for i in range(pixel_count):
-                screen_square.blit([pixel_surf0,pixel_surf1][i==0 and j==0],(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+                screen_square.blit(pixel_surf,(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
     elif isinstance(pixel_set,PixelDiamondBase):
         for j in range(pixel_count):
             for i in range(pixel_count):
-                screen_square.blit([pixel_surf0,pixel_surf1][i==0 and j==0],(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+                screen_square.blit(pixel_surf,(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+        shift = 0.5
+        if isinstance(pixel_set,PixelSquareFujiRGGBEXR):
+            shift = 0.25
         for j in range(pixel_count):
             for i in range(pixel_count):
-                screen_square.blit(pixel_surf0,(rndint((i+0.5)*pixel_size*pixel_set.pattern_w),rndint((j+0.5)*pixel_size*pixel_set.pattern_h)),special_flags=BLEND_ADD)
+                screen_square.blit(pixel_surf,(rndint((i+shift)*pixel_size*pixel_set.pattern_w),rndint((j+shift)*pixel_size*pixel_set.pattern_h)),special_flags=BLEND_ADD)
+
+    pixel_set.draw_outlines(screen_square)
 
     return screen_square
 def gen_save(pixel_set, blur=True):
     screen_square = gen(pixel_set,blur)
+    print("Saving")
     pixel_set.save(screen_square)
     return screen_square
-pixel_set = PixelDiamondRGGB()
-screen_square = gen(pixel_set,False)
-##for pixel_set in [
-##    PixelSquareBasic(),
-##    PixelSquareRGB(),
-##    PixelSquareBGR(),
-##    PixelSquareVRGB(),
-##    PixelSquareVBGR(),
-##    PixelSquareRGBChevron(),
-##    PixelSquareRGBY(),
-##    PixelSquareAltRBG(),
-##    PixelSquareRGGB(),
-##    PixelSquareBGBR(),
-##    PixelSquareAltBGBR(),
-##    PixelsSquarePenTileAltRGWRGB(),
-##    PixelsSquarePenTileAltRGBW(),
-##    PixelsSquarePenTileAltRGBG(),
-##    PixelSquareBayerGRBG(),
-##    PixelSquareBayerWRBG(),
-##    PixelSquareBayerCRBG(),
-##    PixelSquareBayerCYGM(),
-##    PixelSquareBayerCYYM(),
-##    PixelSquareKodakRGBW4a(),
-##    PixelSquareKodakRGBW4b(),
-##    PixelSquareKodakRGBW4c(),
-##    PixelSquareFuji_X_Trans(),
-##    PixelSquareXO_1(),
-##    PixelDiamondRGGB()
-##]:
-##    gen_save(pixel_set)
+
+def init():
+    global screen_square
+##    pixel_set = PixelSquareFujiRGGBEXR()
+##    screen_square = gen(pixel_set,True)
+    for pixel_set in [
+        PixelSquareBasic(),
+        PixelSquareRGB(),
+        PixelSquareBGR(),
+        PixelSquareVRGB(),
+        PixelSquareVBGR(),
+        PixelSquareRGBChevron(),
+        PixelSquareRGBY(),
+        PixelSquareAltRBG(),
+        PixelSquareRGGB(),
+        PixelSquareBGBR(),
+        PixelSquareAltBGBR(),
+        PixelsSquarePenTileAltRGWRGB(),
+        PixelsSquarePenTileAltRGBW(),
+        PixelsSquarePenTileAltRGBG(),
+        PixelSquareBayerGRBG(),
+        PixelSquareBayerWRBG(),
+        PixelSquareBayerCRBG(),
+        PixelSquareBayerCYGM(),
+        PixelSquareBayerCYYM(),
+        PixelSquareKodakRGBW4a(),
+        PixelSquareKodakRGBW4b(),
+        PixelSquareKodakRGBW4c(),
+        PixelSquareFuji_X_Trans(),
+        PixelSquareFujiRGGBEXR(),
+        PixelSquareXO_1(),
+        PixelDiamondRGGB()
+    ]:
+        screen_square = gen_save(pixel_set)
+    print("Done!")
 
 def get_input():
     keys_pressed = pygame.key.get_pressed()
@@ -459,6 +510,7 @@ def draw():
     pygame.display.flip()
 
 def main():
+    init()
     clock = pygame.time.Clock()
     while True:
         if not get_input(): break
