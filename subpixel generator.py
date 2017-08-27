@@ -170,6 +170,13 @@ class PixelSquareVBGR(PixelSquareBase):
         self.subpixels.append( SubPixelCapsule(BLUE,  (fifth,  sixth),(one-fifth,  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (fifth,   half),(one-fifth,   half), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (fifth,5*sixth),(one-fifth,5*sixth), 0.12) )
+class PixelSquareRGBY(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 1,1, "RGBY")
+        self.subpixels.append( SubPixelCapsule(RED,    (  eighth,eighth),(  eighth,one-eighth), 0.09) )
+        self.subpixels.append( SubPixelCapsule(GREEN,  (3*eighth,eighth),(3*eighth,one-eighth), 0.09) )
+        self.subpixels.append( SubPixelCapsule(BLUE,   (5*eighth,eighth),(5*eighth,one-eighth), 0.09) )
+        self.subpixels.append( SubPixelCapsule(YELLOW, (7*eighth,eighth),(7*eighth,one-eighth), 0.09) )
 class PixelSquareAltRBG(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 1,2, "altRBG")
@@ -345,14 +352,15 @@ def gen_save(pixel_set, blur=True):
     screen_square = gen(pixel_set,blur)
     pixel_set.save(screen_square)
     return screen_square
-pixel_set = PixelSquareAltRBG()
-screen_square = gen_save(pixel_set,True)
+pixel_set = PixelSquareRGBY()
+screen_square = gen_save(pixel_set,False)
 ##for pixel_set in [
 ##    PixelSquareBasic(),
 ##    PixelSquareRGB(),
 ##    PixelSquareBGR(),
 ##    PixelSquareVRGB(),
 ##    PixelSquareVBGR(),
+##    PixelSquareRGBY(),
 ##    PixelSquareAltRBG(),
 ##    PixelSquareRGGB(),
 ##    PixelSquareBGBR(),
