@@ -17,13 +17,14 @@ icon = pygame.Surface((1,1)); icon.set_alpha(0); pygame.display.set_icon(icon)
 pygame.display.set_caption("Subpixel Generator")
 surface = pygame.display.set_mode(screen_size)
 
-##RED = (255,0,0)
-##GREEN = (0,255,0)
-##BLUE = (0,0,255)
-##CYAN = (0,255,255)
-##YELLOW = (255,255,0)
-##MAGENTA = (255,0,255)
-##WHITE = (255,255,255)
+PURE_RED = (255,0,0)
+PURE_GREEN = (0,255,0)
+PURE_BLUE = (0,0,255)
+PURE_CYAN = (0,255,255)
+PURE_YELLOW = (255,255,0)
+PURE_MAGENTA = (255,0,255)
+PURE_WHITE = (255,255,255)
+
 RED = (208,25,3)
 GREEN = (41,200,20)
 BLUE = (0,43,208)
@@ -164,7 +165,7 @@ class PixelBase(object):
         self.pattern_w = pattern_w
         self.pattern_h = pattern_h
         self.name = name
-        self.color_outline = YELLOW
+        self.color_outline = PURE_CYAN
     def draw(self, surf):
         for s in self.subpixels: s.draw(surf)
     def draw_outline_rect(self, surf, rect):
@@ -208,7 +209,7 @@ class PixelSquareBasic(PixelSquareBase): #No example
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "basic")
         self.subpixels.append( SubPixelBox(WHITE, (half,half),half) )
-        self.color_outline = RED
+        self.color_outline = PURE_RED
 class PixelSquareRGB(PixelSquareBase): #Example size: 130
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "RGB")
