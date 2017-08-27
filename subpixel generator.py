@@ -33,7 +33,7 @@ YELLOW = (208,208,40)
 MAGENTA = (208,40,208)
 WHITE = (208,208,208)
 
-##pixel_size = 64
+##pixel_size = 67
 pixel_size = 256
 pixel_count = 4
 
@@ -41,6 +41,8 @@ if pixel_size == 64:
     outline_size = 1
 elif pixel_size == 256:
     outline_size = 4
+else:
+    outline_size = 1
 
 half = 0.5 * pixel_size
 third = 1.0/3.0 * pixel_size
@@ -281,6 +283,17 @@ class PixelSquareBGBR(PixelSquareBase): #Example size: 42
         self.subpixels.append( SubPixelCapsule(BLUE,  (sixth,      sixth),(  sixth,one-  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, ( half,    quarter),(5*sixth,    quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   ( half,one-quarter),(5*sixth,one-quarter), 0.12) )
+class PixelSquareShiftBRBG(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 2,2, "shiftBRBG")
+        for j in [0,1]:
+            for i in [0,1]:
+                x = i * pixel_size
+                y = j * pixel_size
+                self.subpixels.append( SubPixelCapsule(RED,   ( half+x,    quarter+y),(5*sixth-0.15*one+x,    quarter+y), 0.12) )
+                self.subpixels.append( SubPixelCapsule(GREEN, ( half+x,one-quarter+y),(5*sixth-0.15*one+x,one-quarter+y), 0.12) )
+                y += [0,0.3*one][i^j]
+                self.subpixels.append( SubPixelCapsule(BLUE,  (eighth+x,eighth+y),(eighth+x,one-eighth-0.3*one+y), 0.08) )
 class PixelSquareAltBGBR(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 1,2, "altBGBR")
@@ -480,38 +493,39 @@ def gen_save(pixel_set, blur=True):
 
 def init():
     global screen_square
-##    pixel_set = PixelSquareFujiRGGBEXR()
-##    screen_square = gen(pixel_set,True)
-    for pixel_set in [
-        PixelSquareBasic(),
-        PixelSquareRGB(),
-        PixelSquareBGR(),
-        PixelSquareVRGB(),
-        PixelSquareVBGR(),
-        PixelSquareRGBChevron(),
-        PixelSquareRGBY(),
-        PixelSquareAltRBG(),
-        PixelSquareRGGB(),
-        PixelSquareBGBR(),
-        PixelSquareAltBGBR(),
-        PixelsSquarePenTileAltRGWRGB(),
-        PixelsSquarePenTileAltRGBW(),
-        PixelsSquarePenTileAltRGBG(),
-        PixelSquareBayerGRBG(),
-        PixelSquareBayerWRBG(),
-        PixelSquareBayerCRBG(),
-        PixelSquareBayerCYGM(),
-        PixelSquareBayerCYYM(),
-        PixelSquareKodakRGBW4a(),
-        PixelSquareKodakRGBW4b(),
-        PixelSquareKodakRGBW4c(),
-        PixelSquareFuji_X_Trans(),
-        PixelSquareFujiRGGBEXR(),
-        PixelSquareXO_1(),
-        PixelDiamondRGGB()
-    ]:
-        screen_square = gen_save(pixel_set)
-    print("Done!")
+    pixel_set = PixelSquareShiftBRBG()
+    screen_square = gen_save(pixel_set,True)
+##    for pixel_set in [
+##        PixelSquareBasic(),
+##        PixelSquareRGB(),
+##        PixelSquareBGR(),
+##        PixelSquareVRGB(),
+##        PixelSquareVBGR(),
+##        PixelSquareRGBChevron(),
+##        PixelSquareRGBY(),
+##        PixelSquareAltRBG(),
+##        PixelSquareRGGB(),
+##        PixelSquareBGBR(),
+##        PixelSquareShiftBRBG(),
+##        PixelSquareAltBGBR(),
+##        PixelsSquarePenTileAltRGWRGB(),
+##        PixelsSquarePenTileAltRGBW(),
+##        PixelsSquarePenTileAltRGBG(),
+##        PixelSquareBayerGRBG(),
+##        PixelSquareBayerWRBG(),
+##        PixelSquareBayerCRBG(),
+##        PixelSquareBayerCYGM(),
+##        PixelSquareBayerCYYM(),
+##        PixelSquareKodakRGBW4a(),
+##        PixelSquareKodakRGBW4b(),
+##        PixelSquareKodakRGBW4c(),
+##        PixelSquareFuji_X_Trans(),
+##        PixelSquareFujiRGGBEXR(),
+##        PixelSquareXO_1(),
+##        PixelDiamondRGGB()
+##    ]:
+##        screen_square = gen_save(pixel_set)
+##    print("Done!")
 
 def get_input():
     keys_pressed = pygame.key.get_pressed()
