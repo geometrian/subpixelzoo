@@ -142,6 +142,17 @@ class PixelSquareBase(PixelBase):
         for j in range(self.pattern_h):
             for i in range(self.pattern_w):
                 pygame.draw.rect(surf, (255,0,0), (i*pixel_size,j*pixel_size,pixel_size,pixel_size), 1)
+class PixelDiamondBase(PixelBase):
+    def __init__(self, pattern_w,pattern_h, name):
+        PixelBase.__init__(self, pattern_w,pattern_h, "diamond_"+name)
+    def draw(self, surf):
+        PixelBase.draw(self,surf)
+    def draw_outlines(self, surf):
+        points = [(0.0,0.5),(0.5,1.0),(1.0,0.5),(0.5,0.0)]
+        points = [(rndint(x*pixel_size),rndint(y*pixel_size)) for x,y in points]
+        for j in range(self.pattern_h):
+            for i in range(self.pattern_w):
+                pygame.draw.lines(surf, (255,0,0), True, points, 1)
 
 #Pixel Geometries
 class PixelSquareBasic(PixelSquareBase): #No example
@@ -277,8 +288,6 @@ class PixelsSquarePenTileAltRGBG(PixelSquareBase):
                 else:
                     self.subpixels.append( SubPixelBox(BLUE, (one*i+third,one*j+half), 0.20) )
                 self.subpixels.append( SubPixelCapsule(GREEN, (one*i+5*sixth,one*j+quarter),(one*i+5*sixth,one*j+one-quarter), 0.065) )
-#TODO: RotTris
-#TODO: DiamondRGGB
 class PixelSquareBayer2Base(PixelSquareBase):
     def __init__(self, name, colors):
         PixelSquareBase.__init__(self, 1,1, "bayer_"+name)
@@ -353,6 +362,14 @@ class PixelSquareXO_1(PixelSquareBase): #Example size: 136
         self.subpixels.append( SubPixelBox(BLUE,  (  sixth,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(RED,   (   half,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(GREEN, (5*sixth,5*sixth), 0.10) )
+#TODO: RotTris
+class PixelDiamondRGGB(PixelDiamondBase):
+    def __init__(self):
+        PixelDiamondBase.__init__(self, 1,1, "RGGB")
+        self.subpixels.append( SubPixelDiamond(RED,   (     half,    quarter), 0.13) )
+        self.subpixels.append( SubPixelDiamond(GREEN, (    quarter,     half), 0.09) )
+        self.subpixels.append( SubPixelDiamond(GREEN, (one-quarter,     half), 0.09) )
+        self.subpixels.append( SubPixelDiamond(BLUE,  (     half,one-quarter), 0.15) )
 
 def gen(pixel_set, blur=True):
     pixel_surf0 = pygame.Surface(( pixel_size*pixel_set.pattern_w, pixel_size*pixel_set.pattern_h ))
@@ -362,17 +379,25 @@ def gen(pixel_set, blur=True):
     pixel_set.draw_outlines(pixel_surf1)
 
     screen_square = pygame.Surface((pixel_count*pixel_size,pixel_count*pixel_size))
-    for j in range(pixel_count):
-        for i in range(pixel_count):
-            screen_square.blit([pixel_surf0,pixel_surf1][i==0 and j==0],(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+    if isinstance(pixel_set,PixelSquareBase):
+        for j in range(pixel_count):
+            for i in range(pixel_count):
+                screen_square.blit([pixel_surf0,pixel_surf1][i==0 and j==0],(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+    elif isinstance(pixel_set,PixelDiamondBase):
+        for j in range(pixel_count):
+            for i in range(pixel_count):
+                screen_square.blit([pixel_surf0,pixel_surf1][i==0 and j==0],(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+        for j in range(pixel_count):
+            for i in range(pixel_count):
+                screen_square.blit(pixel_surf0,(rndint((i+0.5)*pixel_size*pixel_set.pattern_w),rndint((j+0.5)*pixel_size*pixel_set.pattern_h)),special_flags=BLEND_ADD)
 
     return screen_square
 def gen_save(pixel_set, blur=True):
     screen_square = gen(pixel_set,blur)
     pixel_set.save(screen_square)
     return screen_square
-pixel_set = PixelSquareRGBChevron()
-screen_square = gen_save(pixel_set,True)
+pixel_set = PixelDiamondRGGB()
+screen_square = gen(pixel_set,False)
 ##for pixel_set in [
 ##    PixelSquareBasic(),
 ##    PixelSquareRGB(),
@@ -397,7 +422,8 @@ screen_square = gen_save(pixel_set,True)
 ##    PixelSquareKodakRGBW4b(),
 ##    PixelSquareKodakRGBW4c(),
 ##    PixelSquareFuji_X_Trans(),
-##    PixelSquareXO_1()
+##    PixelSquareXO_1(),
+##    PixelDiamondRGGB()
 ##]:
 ##    gen_save(pixel_set)
 
