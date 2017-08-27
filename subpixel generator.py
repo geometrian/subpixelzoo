@@ -33,7 +33,7 @@ YELLOW = (208,208,40)
 MAGENTA = (208,40,208)
 WHITE = (208,208,208)
 
-##pixel_size = 67
+##pixel_size = 116
 pixel_size = 256
 pixel_count = 4
 
@@ -352,6 +352,18 @@ class PixelsSquarePenTileAltRGBG(PixelSquareBase):
                 else:
                     self.subpixels.append( SubPixelBox(BLUE, (one*i+third,one*j+half), 0.20) )
                 self.subpixels.append( SubPixelCapsule(GREEN, (one*i+5*sixth,one*j+quarter),(one*i+5*sixth,one*j+one-quarter), 0.065) )
+class PixelsSquarePenTileDiagonalGRGB(PixelSquareBase): #Example size: 116
+    def __init__(self):
+        PixelSquareBase.__init__(self, 2,2, "pentilediagonalGRGB")
+        d = 0.02*one
+        for j in range(2):
+            for i in range(2):
+                if i == j:
+                    self.subpixels.append( SubPixelDiamond(RED,   (one*i+3*quarter,one*j+quarter), 0.26) )
+                    self.subpixels.append( SubPixelCapsule(GREEN, (one*i+quarter-d,one*j+3*quarter+d),(one*i+quarter+d,one*j+3*quarter-d), 0.14) )
+                else:
+                    self.subpixels.append( SubPixelDiamond(BLUE,  (one*i+3*quarter,one*j+quarter), 0.3) )
+                    self.subpixels.append( SubPixelCapsule(GREEN, (one*i+quarter-d,one*j+3*quarter-d),(one*i+quarter+d,one*j+3*quarter+d), 0.14) )
 class PixelSquareBayer2Base(PixelSquareBase):
     def __init__(self, name, colors):
         PixelSquareBase.__init__(self, 1,1, "bayer_"+name)
@@ -449,14 +461,6 @@ class PixelSquareXO_1(PixelSquareBase): #Example size: 136
         self.subpixels.append( SubPixelBox(BLUE,  (  sixth,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(RED,   (   half,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(GREEN, (5*sixth,5*sixth), 0.10) )
-#TODO: RotTris
-class PixelDiamondRGGB(PixelDiamondBase):
-    def __init__(self):
-        PixelDiamondBase.__init__(self, 1,1, "RGGB")
-        self.subpixels.append( SubPixelDiamond(RED,   (     half,    quarter), 0.13) )
-        self.subpixels.append( SubPixelDiamond(GREEN, (    quarter,     half), 0.09) )
-        self.subpixels.append( SubPixelDiamond(GREEN, (one-quarter,     half), 0.09) )
-        self.subpixels.append( SubPixelDiamond(BLUE,  (     half,one-quarter), 0.15) )
 
 def gen(pixel_set, blur=True):
     print("Generating \""+pixel_set.name+"\"")
@@ -493,7 +497,7 @@ def gen_save(pixel_set, blur=True):
 
 def init():
     global screen_square
-    pixel_set = PixelSquareShiftBRBG()
+    pixel_set = PixelsSquarePenTileDiagonalGRGB()
     screen_square = gen_save(pixel_set,True)
 ##    for pixel_set in [
 ##        PixelSquareBasic(),
@@ -511,6 +515,7 @@ def init():
 ##        PixelsSquarePenTileAltRGWRGB(),
 ##        PixelsSquarePenTileAltRGBW(),
 ##        PixelsSquarePenTileAltRGBG(),
+##        PixelsSquarePenTileDiagonalGRGB(),
 ##        PixelSquareBayerGRBG(),
 ##        PixelSquareBayerWRBG(),
 ##        PixelSquareBayerCRBG(),
@@ -521,8 +526,7 @@ def init():
 ##        PixelSquareKodakRGBW4c(),
 ##        PixelSquareFuji_X_Trans(),
 ##        PixelSquareFujiRGGBEXR(),
-##        PixelSquareXO_1(),
-##        PixelDiamondRGGB()
+##        PixelSquareXO_1()
 ##    ]:
 ##        screen_square = gen_save(pixel_set)
 ##    print("Done!")
