@@ -29,6 +29,7 @@ fifth = 1.0/5.0 * pixel_size
 sixth = 1.0/6.0 * pixel_size
 eighth = 0.125 * pixel_size
 tenth = 1.0/10.0 * pixel_size
+fifteenth = 1.0/15.0 * pixel_size
 twentieth = 1.0/20.0 * pixel_size
 thirtyfifth = 1.0/35.0 * pixel_size
 fiftieth = 1.0/50.0 * pixel_size
@@ -103,13 +104,14 @@ class SubPixelPoly(SubPixelBase):
         ps = [rndpt(pt) for pt in self.points]
         pygame.draw.polygon(surf, self.color, ps)
 class SubPixelCapsule(SubPixelBase):
-    def __init__(self, color, p0,p1,radius):
+    def __init__(self, color, p0,p1,radius, line_width_boost):
         SubPixelBase.__init__(self, color)
         self.p0 = p0
         self.p1 = p1
         self.radius = rndint(radius*pixel_size)
+        self.line_width = rndint(2.0 * radius*pixel_size * line_width_boost)
     def draw(self, surf):
-        pygame.draw.line(surf, self.color, rndpt(self.p0,[-1,-1]),rndpt(self.p1,[-1,-1]), 2*self.radius)
+        pygame.draw.line(surf, self.color, rndpt(self.p0,[-1,-1]),rndpt(self.p1,[-1,-1]), self.line_width)
         pygame.draw.circle(surf, self.color, rndpt(self.p0), self.radius)
         pygame.draw.circle(surf, self.color, rndpt(self.p1), self.radius)
 class SubPixelDiamond(SubPixelBase):
@@ -158,6 +160,39 @@ class PixelSquareBGR(PixelSquareBase): #Example size: 130
         self.subpixels.append( SubPixelCapsule(BLUE,  (  sixth,fifth),(  sixth,one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (   half,fifth),(   half,one-fifth), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (5*sixth,fifth),(5*sixth,one-fifth), 0.12) )
+class PixelSquareAltRBG(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 1,2, "altRBG")
+        self.subpixels.append( SubPixelCapsule(RED,   (  sixth,    fifth),(  sixth,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (   half,    fifth),(   half,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (5*sixth,    fifth),(5*sixth,    one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (  sixth,one+fifth),(  sixth,one+one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (   half,one+fifth),(   half,one+one-fifth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(RED,   (5*sixth,one+fifth),(5*sixth,one+one-fifth), 0.12) )
+class PixelSquareRGBChevron(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 1,1, "chevRGB")
+        radius = 0.10
+        line_boost = 1.2
+        dx = -sixth
+        dy = eighth
+        self.subpixels.append( SubPixelCapsule(RED,   (              sixth    +dx,   dy),(7*fifteenth            +dx,     half), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(RED,   (7*fifteenth            +dx, half),(              sixth    +dx,one-   dy), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(RED,   (              sixth+one+dx,   dy),(7*fifteenth        +one+dx,     half), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(RED,   (7*fifteenth        +one+dx, half),(              sixth+one+dx,one-   dy), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (               half    +dx,   dy),(7*fifteenth+  third    +dx,     half), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (7*fifteenth+  third    +dx, half),(               half    +dx,one-   dy), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (            5*sixth    +dx,   dy),(7*fifteenth+2*third    +dx,     half), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (7*fifteenth+2*third    +dx, half),(            5*sixth    +dx,one-   dy), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (            5*sixth-one+dx,   dy),(7*fifteenth+2*third-one+dx,     half), radius, line_boost) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (7*fifteenth+2*third-one+dx, half),(            5*sixth-one+dx,one-   dy), radius, line_boost) )
+class PixelSquareRGBY(PixelSquareBase):
+    def __init__(self):
+        PixelSquareBase.__init__(self, 1,1, "RGBY")
+        self.subpixels.append( SubPixelCapsule(RED,    (  eighth,eighth),(  eighth,one-eighth), 0.09) )
+        self.subpixels.append( SubPixelCapsule(GREEN,  (3*eighth,eighth),(3*eighth,one-eighth), 0.09) )
+        self.subpixels.append( SubPixelCapsule(BLUE,   (5*eighth,eighth),(5*eighth,one-eighth), 0.09) )
+        self.subpixels.append( SubPixelCapsule(YELLOW, (7*eighth,eighth),(7*eighth,one-eighth), 0.09) )
 class PixelSquareVRGB(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "VRGB")
@@ -170,22 +205,6 @@ class PixelSquareVBGR(PixelSquareBase):
         self.subpixels.append( SubPixelCapsule(BLUE,  (fifth,  sixth),(one-fifth,  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (fifth,   half),(one-fifth,   half), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (fifth,5*sixth),(one-fifth,5*sixth), 0.12) )
-class PixelSquareRGBY(PixelSquareBase):
-    def __init__(self):
-        PixelSquareBase.__init__(self, 1,1, "RGBY")
-        self.subpixels.append( SubPixelCapsule(RED,    (  eighth,eighth),(  eighth,one-eighth), 0.09) )
-        self.subpixels.append( SubPixelCapsule(GREEN,  (3*eighth,eighth),(3*eighth,one-eighth), 0.09) )
-        self.subpixels.append( SubPixelCapsule(BLUE,   (5*eighth,eighth),(5*eighth,one-eighth), 0.09) )
-        self.subpixels.append( SubPixelCapsule(YELLOW, (7*eighth,eighth),(7*eighth,one-eighth), 0.09) )
-class PixelSquareAltRBG(PixelSquareBase):
-    def __init__(self):
-        PixelSquareBase.__init__(self, 1,2, "altRBG")
-        self.subpixels.append( SubPixelCapsule(RED,   (  sixth,    fifth),(  sixth,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(BLUE,  (   half,    fifth),(   half,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(GREEN, (5*sixth,    fifth),(5*sixth,    one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(GREEN, (  sixth,one+fifth),(  sixth,one+one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(BLUE,  (   half,one+fifth),(   half,one+one-fifth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(RED,   (5*sixth,one+fifth),(5*sixth,one+one-fifth), 0.12) )
 class PixelSquareRGGB(PixelSquareBase):  #Example size: 136?  #TODO: finish
     def __init__(self):
         PixelSquareBase.__init__(self, 1,1, "RGGB")
@@ -352,14 +371,15 @@ def gen_save(pixel_set, blur=True):
     screen_square = gen(pixel_set,blur)
     pixel_set.save(screen_square)
     return screen_square
-pixel_set = PixelSquareRGBY()
-screen_square = gen_save(pixel_set,False)
+pixel_set = PixelSquareRGBChevron()
+screen_square = gen_save(pixel_set,True)
 ##for pixel_set in [
 ##    PixelSquareBasic(),
 ##    PixelSquareRGB(),
 ##    PixelSquareBGR(),
 ##    PixelSquareVRGB(),
 ##    PixelSquareVBGR(),
+##    PixelSquareRGBChevron(),
 ##    PixelSquareRGBY(),
 ##    PixelSquareAltRBG(),
 ##    PixelSquareRGGB(),
