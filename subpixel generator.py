@@ -1,5 +1,6 @@
 import sys, os
 import traceback
+import math
 from math import *
 
 with open(os.devnull, "w") as f:
@@ -201,16 +202,6 @@ class PixelSquareBase(PixelBase):
         for j in range(self.pattern_h):
             for i in range(self.pattern_w):
                 self.draw_outline_rect(surf, (i*pixel_size,j*pixel_size,pixel_size,pixel_size))
-class PixelRectBase(PixelBase):
-    def __init__(self, pattern_w,pattern_h, aspect, name):
-        PixelBase.__init__(self, pattern_w,pattern_h, "rect_"+name)
-        self.aspect = aspect
-    def draw(self, surf):
-        PixelBase.draw(self,surf)
-    def draw_outlines(self, surf):
-        for j in range(self.pattern_h):
-            for i in range(self.pattern_w):
-                self.draw_outline_rect(surf, (i*pixel_size,j*pixel_size,pixel_size,pixel_size//self.aspect))
 class PixelDiamondBase(PixelBase):
     def __init__(self, pattern_w,pattern_h, name):
         PixelBase.__init__(self, pattern_w,pattern_h, "diamond_"+name)
@@ -222,6 +213,15 @@ class PixelDiamondBase(PixelBase):
         for j in range(self.pattern_h):
             for i in range(self.pattern_w):
                 pygame.draw.lines(surf, self.color_outline, True, points, outline_size)
+class PixelTriangleBase(PixelBase):
+    def __init__(self, pattern_w,pattern_h, horiz0_vert1, name, scalex=1.0,scaley=1.0):
+        PixelBase.__init__(self, pattern_w,pattern_h, "tri_"+name)
+        self.horiz0_vert1 = horiz0_vert1
+        self.scalex=scalex; self.scaley=scaley
+    def draw(self, surf):
+        PixelBase.draw(self,surf)
+    def draw_outlines(self, surf):
+        pass
 
 #Pixel Geometries
 class PixelSquareBasic(PixelSquareBase): #No example
@@ -314,15 +314,6 @@ class PixelSquareShiftBRBG(PixelSquareBase):
 class PixelSquareAltBGBR(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 1,2, "altBGBR")
-        self.subpixels.append( SubPixelCapsule(BLUE,  (    sixth,          sixth),(    sixth,    one-  sixth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(GREEN, (     half,        quarter),(  5*sixth,        quarter), 0.12) )
-        self.subpixels.append( SubPixelCapsule(RED,   (     half,    one-quarter),(  5*sixth,    one-quarter), 0.12) )
-        self.subpixels.append( SubPixelCapsule(BLUE,  (one-sixth,one+      sixth),(one-sixth,one+one-  sixth), 0.12) )
-        self.subpixels.append( SubPixelCapsule(GREEN, (    sixth,one+    quarter),(     half,one+    quarter), 0.12) )
-        self.subpixels.append( SubPixelCapsule(RED,   (    sixth,one+one-quarter),(     half,one+one-quarter), 0.12) )
-class PixelRectSquashShiftRGB(PixelRectBase):
-    def __init__(self):
-        PixelRectBase.__init__(self, 1,2, 2, "squashshiftRGB")
         self.subpixels.append( SubPixelCapsule(BLUE,  (    sixth,          sixth),(    sixth,    one-  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (     half,        quarter),(  5*sixth,        quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (     half,    one-quarter),(  5*sixth,    one-quarter), 0.12) )
@@ -487,6 +478,29 @@ class PixelSquareXO_1(PixelSquareBase): #Example size: 136
         self.subpixels.append( SubPixelBox(BLUE,  (  sixth,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(RED,   (   half,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(GREEN, (5*sixth,5*sixth), 0.10) )
+class PixelTriangleDot(PixelTriangleBase):
+    #Gleb Mazovetskiy (1st, provided good picture by email, deferred for lack of details)
+    #Brendan Weibrecht (2nd, point thread here https://www.oesf.org/forum/index.php?topic=36886.0 )
+    def __init__(self):
+        PixelTriangleBase.__init__(self, 1.0,1.0, 1, "vtridot", 0.5,1.0)
+        def xfm(x,y): return x*pixel_size, y*pixel_size
+        self.subpixels.append( SubPixelBox(RED,   xfm( 0.5, 1.0/6.0 ), 0.14) )
+        self.subpixels.append( SubPixelBox(GREEN, xfm( 0.5, 3.0/6.0 ), 0.14) )
+        self.subpixels.append( SubPixelBox(BLUE,  xfm( 0.5, 5.0/6.0 ), 0.14) )
+class PixelTriangleVerticalColumnRGB(PixelTriangleBase):
+    #https://commons.wikimedia.org/wiki/File:CRT_pixel_array.jpg
+    def __init__(self):
+        PixelTriangleBase.__init__(self, 1,1, 1, "vtriRGB")
+        def xfm(x,y):
+            x,y = (x-0.5)*0.85+0.5, (y-0.5)*1.2+0.5
+            return x*pixel_size, y*pixel_size
+        self.subpixels.append( SubPixelCapsule(RED,   xfm(1.0/6.0,1.0/5.0),xfm(1.0/6.0,0.8), 0.10) )
+        self.subpixels.append( SubPixelCapsule(GREEN, xfm(1.0/2.0,1.0/5.0),xfm(1.0/2.0,0.8), 0.10) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  xfm(5.0/6.0,1.0/5.0),xfm(5.0/6.0,0.8), 0.10) )
+
+#TODO:
+#   https://crast.net/21193/the-first-qd-oled-screens-hide-a-peculiar-structure-in-their-pixels-these-are-the-reasons-advantages-and-disadvantages/
+#   https://www.flatpanelshd.com/news.php?subaction=showfull&id=1648029400
 
 def gen(pixel_set, blur=True):
     print("Generating \""+pixel_set.name+"\"")
@@ -501,10 +515,17 @@ def gen(pixel_set, blur=True):
         for j in range(pixel_count):
             for i in range(pixel_count):
                 screen_square.blit(pixel_surf,(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
-    elif isinstance(pixel_set,PixelRectBase):
-        for j in range(pixel_count):
-            for i in range(pixel_count):
-                screen_square.blit(pixel_surf,(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+    elif isinstance(pixel_set,PixelTriangleBase):
+        if pixel_set.horiz0_vert1 == 0: #horizontal-shifting mode
+            xoffset=0.5; yoffset=0.0; xstride=1.0; ystride=0.5*3.0**0.5
+        else:
+            xoffset=0.0; yoffset=-0.5; xstride=0.5*3.0**0.5; ystride=1.0
+        xstride*=pixel_set.scalex; ystride*=pixel_set.scaley
+        for j in range(-1,math.ceil(pixel_count/pixel_set.scaley)+1,1):
+            for i in range(-1,math.ceil(pixel_count/pixel_set.scalex)+1,1):
+                xfactor = ( i + [0.0,xoffset][j%2] )*xstride
+                yfactor = ( j + [0.0,yoffset][i%2] )*ystride
+                screen_square.blit(pixel_surf,(rndint(xfactor*pixel_size*pixel_set.pattern_w),rndint(yfactor*pixel_size*pixel_set.pattern_h)),special_flags=BLEND_ADD)
     elif isinstance(pixel_set,PixelDiamondBase):
         for j in range(pixel_count):
             for i in range(pixel_count):
@@ -529,7 +550,7 @@ def gen_save(pixel_set, blur=True):
 
 def init():
     global screen_square
-    pixel_set = PixelRectSquashShiftRGB()
+    pixel_set = PixelTriangleDot()
     screen_square = gen(pixel_set,False)
 ##    for pixel_set in [
 ##        PixelSquareBasic(),
@@ -559,7 +580,9 @@ def init():
 ##        PixelSquareKodakRGBW4c(),
 ##        PixelSquareFuji_X_Trans(),
 ##        PixelSquareFujiRGGBEXR(),
-##        PixelSquareXO_1()
+##        PixelSquareXO_1(),
+##        PixelTriangleDot(),
+##        PixelTriangleVerticalColumnRGB(),
 ##    ]:
 ##        screen_square = gen_save(pixel_set)
     print("Done!")
