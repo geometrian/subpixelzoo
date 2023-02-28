@@ -1,14 +1,21 @@
-import pygame
+import sys, os
+import traceback
+from math import *
+
+with open(os.devnull, "w") as f:
+    oldstdout=sys.stdout; sys.stdout=f; import pygame; sys.stdout=oldstdout
 from pygame.locals import *
+
 try:
     import scipy.ndimage
     with_scipy = True
 except:
     print("Warning: SciPy not available!  Blurring will be very slow.")
     with_scipy = False
-import sys, os, traceback
-from math import *
+
+
 if sys.platform in ["win32","win64"]: os.environ["SDL_VIDEO_CENTERED"]="1"
+
 pygame.display.init()
 pygame.font.init()
 
@@ -194,6 +201,16 @@ class PixelSquareBase(PixelBase):
         for j in range(self.pattern_h):
             for i in range(self.pattern_w):
                 self.draw_outline_rect(surf, (i*pixel_size,j*pixel_size,pixel_size,pixel_size))
+class PixelRectBase(PixelBase):
+    def __init__(self, pattern_w,pattern_h, aspect, name):
+        PixelBase.__init__(self, pattern_w,pattern_h, "rect_"+name)
+        self.aspect = aspect
+    def draw(self, surf):
+        PixelBase.draw(self,surf)
+    def draw_outlines(self, surf):
+        for j in range(self.pattern_h):
+            for i in range(self.pattern_w):
+                self.draw_outline_rect(surf, (i*pixel_size,j*pixel_size,pixel_size,pixel_size//self.aspect))
 class PixelDiamondBase(PixelBase):
     def __init__(self, pattern_w,pattern_h, name):
         PixelBase.__init__(self, pattern_w,pattern_h, "diamond_"+name)
@@ -297,6 +314,15 @@ class PixelSquareShiftBRBG(PixelSquareBase):
 class PixelSquareAltBGBR(PixelSquareBase):
     def __init__(self):
         PixelSquareBase.__init__(self, 1,2, "altBGBR")
+        self.subpixels.append( SubPixelCapsule(BLUE,  (    sixth,          sixth),(    sixth,    one-  sixth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (     half,        quarter),(  5*sixth,        quarter), 0.12) )
+        self.subpixels.append( SubPixelCapsule(RED,   (     half,    one-quarter),(  5*sixth,    one-quarter), 0.12) )
+        self.subpixels.append( SubPixelCapsule(BLUE,  (one-sixth,one+      sixth),(one-sixth,one+one-  sixth), 0.12) )
+        self.subpixels.append( SubPixelCapsule(GREEN, (    sixth,one+    quarter),(     half,one+    quarter), 0.12) )
+        self.subpixels.append( SubPixelCapsule(RED,   (    sixth,one+one-quarter),(     half,one+one-quarter), 0.12) )
+class PixelRectSquashShiftRGB(PixelRectBase):
+    def __init__(self):
+        PixelRectBase.__init__(self, 1,2, 2, "squashshiftRGB")
         self.subpixels.append( SubPixelCapsule(BLUE,  (    sixth,          sixth),(    sixth,    one-  sixth), 0.12) )
         self.subpixels.append( SubPixelCapsule(GREEN, (     half,        quarter),(  5*sixth,        quarter), 0.12) )
         self.subpixels.append( SubPixelCapsule(RED,   (     half,    one-quarter),(  5*sixth,    one-quarter), 0.12) )
@@ -475,6 +501,10 @@ def gen(pixel_set, blur=True):
         for j in range(pixel_count):
             for i in range(pixel_count):
                 screen_square.blit(pixel_surf,(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
+    elif isinstance(pixel_set,PixelRectBase):
+        for j in range(pixel_count):
+            for i in range(pixel_count):
+                screen_square.blit(pixel_surf,(i*pixel_size*pixel_set.pattern_w,j*pixel_size*pixel_set.pattern_h))
     elif isinstance(pixel_set,PixelDiamondBase):
         for j in range(pixel_count):
             for i in range(pixel_count):
@@ -485,6 +515,8 @@ def gen(pixel_set, blur=True):
         for j in range(pixel_count):
             for i in range(pixel_count):
                 screen_square.blit(pixel_surf,(rndint((i+shift)*pixel_size*pixel_set.pattern_w),rndint((j+shift)*pixel_size*pixel_set.pattern_h)),special_flags=BLEND_ADD)
+    else:
+        assert False
 
     pixel_set.draw_outlines(screen_square)
 
@@ -497,8 +529,8 @@ def gen_save(pixel_set, blur=True):
 
 def init():
     global screen_square
-    pixel_set = PixelsSquarePenTileDiagonalGRGB()
-    screen_square = gen_save(pixel_set,True)
+    pixel_set = PixelRectSquashShiftRGB()
+    screen_square = gen(pixel_set,False)
 ##    for pixel_set in [
 ##        PixelSquareBasic(),
 ##        PixelSquareRGB(),
@@ -512,6 +544,7 @@ def init():
 ##        PixelSquareBGBR(),
 ##        PixelSquareShiftBRBG(),
 ##        PixelSquareAltBGBR(),
+##        PixelRectSquashShiftRGB(),
 ##        PixelsSquarePenTileAltRGWRGB(),
 ##        PixelsSquarePenTileAltRGBW(),
 ##        PixelsSquarePenTileAltRGBG(),
@@ -529,7 +562,7 @@ def init():
 ##        PixelSquareXO_1()
 ##    ]:
 ##        screen_square = gen_save(pixel_set)
-##    print("Done!")
+    print("Done!")
 
 def get_input():
     keys_pressed = pygame.key.get_pressed()
