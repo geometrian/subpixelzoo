@@ -478,9 +478,17 @@ class PixelSquareXO_1(PixelSquareBase): #Example size: 136
         self.subpixels.append( SubPixelBox(BLUE,  (  sixth,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(RED,   (   half,5*sixth), 0.10) )
         self.subpixels.append( SubPixelBox(GREEN, (5*sixth,5*sixth), 0.10) )
-class PixelTriangleDot(PixelTriangleBase):
-    #Gleb Mazovetskiy (1st, provided good picture by email, deferred for lack of details)
-    #Brendan Weibrecht (2nd, point thread here https://www.oesf.org/forum/index.php?topic=36886.0 )
+#Triangle dot patterns reported:
+#   Gleb Mazovetskiy (1st, provided good picture by email, deferred for lack of details)
+#   Brendan Weibrecht (2nd, point thread here https://www.oesf.org/forum/index.php?topic=36886.0 )
+class PixelTriangleHorizontalColumnDotRGB(PixelTriangleBase):
+    def __init__(self):
+        PixelTriangleBase.__init__(self, 1.0,1.0, 0, "htridotRGB", 1.0,0.5)
+        def xfm(x,y): return x*pixel_size, y*pixel_size
+        self.subpixels.append( SubPixelBox(RED  , xfm( 1.0/6.0, 0.5 ), 0.14) )
+        self.subpixels.append( SubPixelBox(GREEN, xfm( 3.0/6.0, 0.5 ), 0.14) )
+        self.subpixels.append( SubPixelBox(BLUE , xfm( 5.0/6.0, 0.5 ), 0.14) )
+class PixelTriangleVerticalColumnDot(PixelTriangleBase):
     def __init__(self):
         PixelTriangleBase.__init__(self, 1.0,1.0, 1, "vtridot", 0.5,1.0)
         def xfm(x,y): return x*pixel_size, y*pixel_size
@@ -550,8 +558,9 @@ def gen_save(pixel_set, blur=True):
 
 def init():
     global screen_square
-    pixel_set = PixelTriangleDot()
-    screen_square = gen(pixel_set,False)
+    pixel_set = PixelTriangleHorizontalColumnDotRGB()
+##    screen_square = gen(pixel_set,False)
+##    screen_square = gen_save(pixel_set)
 ##    for pixel_set in [
 ##        PixelSquareBasic(),
 ##        PixelSquareRGB(),
@@ -581,7 +590,8 @@ def init():
 ##        PixelSquareFuji_X_Trans(),
 ##        PixelSquareFujiRGGBEXR(),
 ##        PixelSquareXO_1(),
-##        PixelTriangleDot(),
+##        PixelTriangleHorizontalColumnDotRGB(),
+##        PixelTriangleVerticalColumn(),
 ##        PixelTriangleVerticalColumnRGB(),
 ##    ]:
 ##        screen_square = gen_save(pixel_set)
