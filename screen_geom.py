@@ -21,6 +21,7 @@ class Base:
 		self.grids = []
 
 		self.view_scale = 4.0
+		self.view_shift = ( 0.0, 0.0 )
 
 	def add( self:Self, sub:subpixel.Base ):
 		self.tile_subpixels.append(sub)
@@ -32,7 +33,11 @@ class Base:
 		for     j in range( -1, 8, 1 ):
 			for i in range( -1, 8, 1 ):
 				GL.glPushMatrix()
-				GL.glTranslatef( self.tile_shift[0]*i, self.tile_shift[1]*j, 0.0 )
+				GL.glTranslatef(
+					self.view_shift[0] + self.tile_shift[0]*i,
+					self.view_shift[1] + self.tile_shift[1]*j,
+					0.0
+				)
 				GL.glScalef( self.tile_scale, self.tile_scale, 1.0 )
 				for sub in self.tile_subpixels:
 					sub.draw()
@@ -51,7 +56,11 @@ class Base:
 			for     j in range( rep[1] ):
 				for i in range( rep[0] ):
 					GL.glPushMatrix()
-					GL.glTranslatef( i+shift[0], j+shift[1], 0.0 )
+					GL.glTranslatef(
+						self.view_shift[0] + shift[0] + i,
+						self.view_shift[1] + shift[1] + j,
+						0.0
+					)
 
 					GL.glBegin(GL.GL_LINES)
 					GL.glVertex2f(  -d, 0.0 ); GL.glVertex2f( 1.0+d, 0.0 )
@@ -481,6 +490,39 @@ class TriangleVertDotsRGB(TriangleBase):
 
 		self.view_scale = 4.0
 
+class TriangleVertDots23BGR(TriangleBase):
+	def __init__( self:Self ):
+		SC = 2
+		TriangleBase.__init__( self, "VertDots23BGR", SC*1.0/24.0, (SC*18/24,SC*24/24) )
+
+		def pix_r( x:float, y:float ):
+			lo=(x-1.0,y-0.8); hi=(x+3.5,y+2.7)
+			self.add(subpixel.Box( RED  , lo,hi ))
+		def pix_g( x:float, y:float ):
+			lo=(x-1.0,y-0.5); hi=(x+3.5,y+3.0)
+			self.add(subpixel.Box( GREEN, lo,hi ))
+		def pix_b( x:float, y:float ):
+			lo=(x-1.0,y-2.7); hi=(x+3.5,y+2.3)
+			self.add(subpixel.Box( BLUE , lo,hi ))
+
+		dx=-2.8; dy=-3.1
+		#dx=-2.8; dy=-7.0
+
+		pix_g( dx+ 3.0, dy+ 4.0 )
+		pix_b( dx+12.0, dy+ 8.0 )
+
+		pix_r( dx+ 3.0, dy+12.0 )
+		pix_g( dx+12.0, dy+16.0 )
+
+		pix_b( dx+ 3.0, dy+20.0 )
+		pix_r( dx+12.0, dy+24.0 )
+
+		self.add_grid( (4,3), (0.0,0.0), DARK_CYAN )
+		self.add_grid( (3,2), (0.0,0.0)            )
+
+		self.view_scale = 7.0
+		self.view_shift = ( 0.1, 0.1 )
+
 class TriangleVertSetsRGB(TriangleBase):
 	def __init__( self:Self ):
 		TriangleBase.__init__( self, "VertSetsRGB", 1.0, (2.0,2.0) )
@@ -537,5 +579,6 @@ all_geoms:list[Base] = [
 	TriangleHorizDotsRGB(),
 	TriangleHorizDotsDiagonalRGB(),
 	TriangleVertDotsRGB(),
+	TriangleVertDots23BGR(),
 	TriangleVertSetsRGB()
 ]
