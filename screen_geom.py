@@ -180,6 +180,14 @@ class SquareVRGB(SquareBase):
 		self.add(subpixel.Capsule( BLUE , (1.2,5.0),(4.8,5.0), 0.72 ))
 		self.add_grid((1,1))
 
+class SquareTiltVRGB(SquareBase):
+	def __init__( self:Self ):
+		SquareBase.__init__( self, "TiltVRGB", 1.0/12.0 )
+		self.add(subpixel.Box( RED  , (2.0,2.0),( 5.5, 5.5) ))
+		self.add(subpixel.Box( GREEN, (4.0,6.5),( 8.5,11.0) ))
+		self.add(subpixel.Box( BLUE , (7.5,1.0),(10.0, 3.5) ))
+		self.add_grid((1,1))
+
 class SquareVBGR(SquareBase):
 	def __init__( self:Self ):
 		SquareBase.__init__( self, "VBGR", 1.0/6.0 )
@@ -474,6 +482,7 @@ all_geoms:list[Base] = [
 	SquareRGBY(),
 	SquareShiftRGBY(),
 	SquareVRGB(),
+	SquareTiltVRGB(),
 	SquareVBGR(),
 	SquareSStripeRGB(),
 	SquareAlternateSStripeRGB(),
