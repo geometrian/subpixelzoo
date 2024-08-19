@@ -432,6 +432,34 @@ class TriangleHorizDotsRGB(TriangleBase):
 
 		self.view_scale = 4.0
 
+class TriangleHorizDotsDiagonalRGB(TriangleBase):
+	def __init__( self:Self ):
+		SC = 1.0/3.0
+		TriangleBase.__init__( self, "HorizDotsDiagonalRGB", SC, (SC*3.0,SC*3.0) )
+
+		def box_at( color:Color, x:float,y:float ):
+			if   color == RED  : rh = 0.55
+			elif color == GREEN: rh = 0.50
+			else               : rh = 0.60
+			lo0 = ( x-0.42, y-rh   )
+			hi0 = ( x+0.42, y-0.03 )
+			lo1 = ( x-0.42, y+0.03 )
+			hi1 = ( x+0.42, y+rh   )
+			self.add(subpixel.Box( color, lo0,hi0 ))
+			self.add(subpixel.Box( color, lo1,hi1 ))
+
+		box_at( RED  ,  0.0,0.0 )
+		box_at( GREEN,  1.0,0.0 )
+		box_at( BLUE ,  2.0,0.0 )
+
+		box_at( RED  ,  1.5,1.5 )
+		box_at( GREEN, -0.5,1.5 )
+		box_at( BLUE ,  0.5,1.5 )
+
+		#self.add_grid((3,3))
+
+		#self.view_scale = 4.0
+
 class TriangleVertDotsRGB(TriangleBase):
 	def __init__( self:Self ):
 		SC = 0.5
@@ -507,6 +535,7 @@ all_geoms:list[Base] = [
 	FilterAlternateRGWRGB(),
 
 	TriangleHorizDotsRGB(),
+	TriangleHorizDotsDiagonalRGB(),
 	TriangleVertDotsRGB(),
 	TriangleVertSetsRGB()
 ]
