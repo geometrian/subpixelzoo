@@ -295,12 +295,13 @@ class PenTileDiamondOrthogonal(PenTileBase):
 
 class FilterBayer2Base(FilterBase):
 	def __init__( self:Self, name:str, colors:list[Color] ):
-		FilterBase.__init__( self, name, 1.0/4.0 )
+		FilterBase.__init__( self, name, 1.0/2.0, (2.0,2.0) )
 		self.add(subpixel.Box( colors[0], (1.0,1.0), 0.8 ))
 		self.add(subpixel.Box( colors[1], (3.0,1.0), 0.8 ))
 		self.add(subpixel.Box( colors[2], (1.0,3.0), 0.8 ))
 		self.add(subpixel.Box( colors[3], (3.0,3.0), 0.8 ))
-		self.add_grid((1,1))
+		self.add_grid((2,2))
+		self.view_scale = 8.0
 class FilterGRBG(FilterBayer2Base):
 	def __init__( self:Self ): FilterBayer2Base.__init__( self, "GRBG", [GREEN,RED,BLUE,GREEN] )
 class FilterWRBG(FilterBayer2Base):
@@ -314,12 +315,12 @@ class FilterCYYM(FilterBayer2Base):
 
 class FilterBayer4Base(FilterBase):
 	def __init__( self:Self, name:str, colors:list[Color] ):
-		FilterBase.__init__( self, name, 1.0/8.0 )
+		FilterBase.__init__( self, name, 1.0/2.0, (4.0,4.0) )
 		for     j in range(4):
 			for i in range(4):
 				self.add(subpixel.Box( colors[j][i], (2*i+1,2*j+1), 0.8 ))
-		self.add_grid((1,1))
-		self.view_scale = 2.0
+		self.add_grid((4,4))
+		self.view_scale = 8.0
 class FilterKodakRGBW4a(FilterBayer4Base):
 	def __init__( self:Self ):
 		FilterBayer4Base.__init__( self, "KodakRGBW4a", [
@@ -347,7 +348,7 @@ class FilterKodakRGBW4c(FilterBayer4Base):
 
 class FilterFujiXTrans(FilterBase):
 	def __init__( self:Self ):
-		FilterBase.__init__( self, "FujiXTrans", 1.0/6.0, (2.0,2.0) )
+		FilterBase.__init__( self, "FujiXTrans", 1.0/2.0, (6.0,6.0) )
 		x=0; y=0
 		for ch in "GBGGRG\nRGRBGB\nGBGGRG\nGRGGBG\nBGBRGR\nGRGGBG":
 			if ch == "\n":
@@ -358,7 +359,8 @@ class FilterFujiXTrans(FilterBase):
 				else          : col = BLUE
 				self.add(subpixel.Box( col, (2*x+1,2*y+1), 0.6 ))
 				x += 1
-		self.add_grid((2,2))
+		self.add_grid((6,6))
+		self.view_scale = 12.0
 
 class FilterFujiEXR(FilterBase):
 	def __init__( self:Self ):
@@ -370,7 +372,7 @@ class FilterFujiEXR(FilterBase):
 			self.add(subpixel.Circle( BLUE , (dx+1.5,dy+1.5), 0.25 ))
 		self.add_grid( (2,2), (0.5,0.5), DARK_CYAN )
 		self.add_grid( (2,2) )
-		self.view_scale = 6.0
+		self.view_scale = 5.0
 
 class FilterAlternateRGWRGB(FilterBase):
 	def __init__( self:Self ):
