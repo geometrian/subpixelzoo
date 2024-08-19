@@ -20,6 +20,8 @@ class Box(Base):
 	@overload
 	def __init__( self:Self, color:Color, lo:vec2f,hi:vec2f ): ...
 	@overload
+	def __init__( self:Self, color:Color, lo:vec2f,hi:vec2f, dilate:float ): ...
+	@overload
 	def __init__( self:Self, color:Color, center:vec2f,radius:float ): ...
 	def __init__( self:Self, color:Color, *args ):
 		Base.__init__( self, color )
@@ -27,6 +29,9 @@ class Box(Base):
 			case [ tuple() as lo, tuple() as hi ]:
 				self.lo:vec2f = tuple(lo)
 				self.hi:vec2f = tuple(hi)
+			case [ tuple() as lo, tuple() as hi, float() as dilate ]:
+				self.lo:vec2f = ( lo[0]+dilate, lo[1]+dilate )
+				self.hi:vec2f = ( hi[0]-dilate, hi[1]-dilate )
 			case [ tuple() as center, float() as radius ]:
 				self.lo:vec2f = ( center[0]-radius, center[1]-radius )
 				self.hi:vec2f = ( center[0]+radius, center[1]+radius )

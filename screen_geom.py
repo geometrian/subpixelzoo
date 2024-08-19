@@ -147,11 +147,29 @@ class SquareRGBChevron(SquareBase):
 
 class SquareRGBY(SquareBase):
 	def __init__( self:Self ):
-		SquareBase.__init__( self, "RGBY", 1.0/8.0 )
-		self.add(subpixel.Capsule( RED   , (1.0,1.0),(1.0,7.0), 0.72 ))
-		self.add(subpixel.Capsule( GREEN , (3.0,1.0),(3.0,7.0), 0.72 ))
-		self.add(subpixel.Capsule( BLUE  , (5.0,1.0),(5.0,7.0), 0.72 ))
-		self.add(subpixel.Capsule( YELLOW, (7.0,1.0),(7.0,7.0), 0.72 ))
+		SquareBase.__init__( self, "RGBY", 1.0/4.0 )
+		def scale_in( x:float, y:float ):
+			x = (x-2.0)*0.95 + 2.0
+			y = (y-2.0)*0.95 + 2.0
+			return ( x, y )
+		for     j in range(2):
+			for i in range(4):
+				col = ( RED, GREEN, BLUE, YELLOW )[i]
+				lo = scale_in( i+0.07, 2*j+0.07 )
+				hi = scale_in( i+0.93, 2*j+1.93 )
+				self.add(subpixel.Box( col, lo,hi ))
+		self.add_grid((1,1))
+
+class SquareShiftRGBY(SquareBase):
+	def __init__( self:Self ):
+		SquareBase.__init__( self, "ShiftRGBY", 1.0/2.0, (2.0,2.0) )
+		for     j in range(2):
+			for i in range(4):
+				col = ( RED,GREEN,BLUE,YELLOW, BLUE,YELLOW,RED,GREEN )[ 4*j + i ]
+				dy = 0.0 if i%2==0 else 1.0
+				lo = ( i+0.07, 2*j+0.07+dy )
+				hi = ( i+0.93, 2*j+1.93+dy )
+				self.add(subpixel.Box( col, lo,hi ))
 		self.add_grid((1,1))
 
 class SquareVRGB(SquareBase):
@@ -452,6 +470,7 @@ all_geoms:list[Base] = [
 	SquareAlternateRBG(),
 	SquareRGBChevron(),
 	SquareRGBY(),
+	SquareShiftRGBY(),
 	SquareVRGB(),
 	SquareVBGR(),
 	SquareSStripeRGB(),
