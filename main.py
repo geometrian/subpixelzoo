@@ -1,7 +1,6 @@
-import math
 import os
+import subprocess
 import sys
-import traceback
 
 #"pip install PyOpenGL"
 import OpenGL.GL as GL
@@ -14,7 +13,6 @@ with open( os.devnull, "w" ) as f:
 import scipy.ndimage
 
 import screen_geom
-import subpixel as mod_subpixel
 
 
 
@@ -29,6 +27,8 @@ pygame.font.init()
 WINDOW_RES = [ 1024, 1024 ]
 
 MSAA = 16
+
+PATH_LIBWEBP:str|None = "D:/tools/image processing/convert webp/libwebp-1.2.0-windows-x64/"
 
 
 
@@ -99,8 +99,22 @@ def save( ind:int ):
 	surf_geom.blit( surf_grid, (0,0) ) #Re-use `surf_geom` for the final output
 	surf_sm = pygame.transform.smoothscale(surf_geom,(128,128))
 
-	pygame.image.save( surf_geom, f"output/{geom.name}.png"    )
-	pygame.image.save( surf_sm  , f"output/{geom.name}_sm.png" )
+	PATH_PNG    = f"output/{geom.name}.png"
+	PATH_PNG_SM = f"output/{geom.name}_sm.png"
+	pygame.image.save( surf_geom, PATH_PNG    )
+	pygame.image.save( surf_sm  , PATH_PNG_SM )
+
+	if PATH_LIBWEBP == None: return
+	PATH_CWEBP:str|None = PATH_LIBWEBP + "bin/cwebp.exe"
+
+	PATH_WEBP    = f"output/{geom.name}.webp"
+	PATH_WEBP_SM = f"output/{geom.name}_sm.webp"
+
+	for path_in, path_out in ( (PATH_PNG,PATH_WEBP), (PATH_PNG_SM,PATH_WEBP_SM) ):
+		cmd = [ PATH_CWEBP, "-q","80", "-m 6", "\""+path_in+"\"", "-o","\""+path_out+"\"" ]
+		cmdstr = " ".join(cmd)
+		subprocess.Popen( cmdstr, stdout=subprocess.PIPE,stderr=subprocess.PIPE )
+
 def save_all():
 	for k in range( len(geoms) ):
 		save(k)
