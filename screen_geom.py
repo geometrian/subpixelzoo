@@ -286,18 +286,23 @@ class PenTileAlternateRGBW(PenTileBase):
 
 class PenTileDiamond(PenTileBase):
 	def __init__( self:Self ):
-		PenTileBase.__init__( self, "Diamond", 1.0/4.0, (2.0,2.0) )
-		d = 0.08
-		for     j in range(2):
-			for i in range(2):
-				dx=4.0*i; dy=4.0*j
-				if i == j:
-					self.add(subpixel.Diamond( RED  , (dx+3.0,dy+1.0), 1.04 ))
-					self.add(subpixel.Capsule( GREEN, (dx+1.0-d,dy+3.0+d),(dx+1.0+d,dy+3.0-d), 0.56 ))
-				else:
-					self.add(subpixel.Diamond( BLUE , (dx+3.0,dy+1.0), 1.20 ))
-					self.add(subpixel.Capsule( GREEN, (dx+1.0-d,dy+3.0-d),(dx+1.0+d,dy+3.0+d), 0.56 ))
+		PenTileBase.__init__( self, "Diamond", 1.0/2.0, (2.0,2.0) )
+
+		dy = 1.4
+
+		self.add(subpixel.Diamond( RED  , (0.0,dy+0.0), 0.6 ))
+		self.add(subpixel.Diamond( GREEN, (1.0,dy-1.0), 0.5 ))
+		self.add(subpixel.Diamond( BLUE , (2.0,dy+0.0), 0.7 ))
+		self.add(subpixel.Diamond( GREEN, (3.0,dy-1.0), 0.5 ))
+
+		self.add(subpixel.Diamond( BLUE , (0.0,dy+2.0), 0.7 ))
+		self.add(subpixel.Diamond( GREEN, (1.0,dy+1.0), 0.5 ))
+		self.add(subpixel.Diamond( RED  , (2.0,dy+2.0), 0.6 ))
+		self.add(subpixel.Diamond( GREEN, (3.0,dy+1.0), 0.5 ))
+
 		self.add_grid((2,2))
+
+		self.view_shift = ( 0.2, 0.2 )
 
 class PenTileDiamondOrthogonal(PenTileBase):
 	def __init__( self:Self ):
