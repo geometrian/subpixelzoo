@@ -24,11 +24,14 @@ pygame.font.init()
 
 
 
-WINDOW_RES = [ 1024, 1024 ]
+PATH_LIBWEBP:str|None = "D:/tools/image processing/convert webp/libwebp-1.2.0-windows-x64/"
+
+RES = 1024
+BLUR = 8
 
 MSAA = 16
 
-PATH_LIBWEBP:str|None = "D:/tools/image processing/convert webp/libwebp-1.2.0-windows-x64/"
+BLUR_PAD = 4*BLUR
 
 
 
@@ -40,7 +43,7 @@ pygame.display.gl_set_attribute( pygame.GL_MULTISAMPLESAMPLES, MSAA            )
 
 pygame.display.gl_set_attribute( pygame.GL_FRAMEBUFFER_SRGB_CAPABLE, 1 )
 
-pygame.display.set_mode( WINDOW_RES, pygame.OPENGL|pygame.DOUBLEBUF )
+pygame.display.set_mode( (RES+2*BLUR_PAD,RES+2*BLUR_PAD), pygame.OPENGL|pygame.DOUBLEBUF )
 
 
 
@@ -84,19 +87,19 @@ def get_screenshot( with_alpha:bool ):
 def save( ind:int ):
 	geom = geoms[ind]
 
-	draw( ind, True,False )
+	draw( ind, True,False,False )
 	surf_geom = get_screenshot(False)
-	draw( ind, False,True )
+	draw( ind, False,True,False )
 	surf_grid = get_screenshot(False)
 
-	s = 8.0
 	arr = pygame.surfarray.array3d(surf_geom)
-	arr = scipy.ndimage.gaussian_filter( arr, sigma=(s,s,0), order=0, mode="wrap" )
+	arr = scipy.ndimage.gaussian_filter( arr, sigma=(BLUR,BLUR,0), order=0, mode="wrap" )
 	surf_geom = pygame.surfarray.make_surface(arr)
 
 	surf_grid.set_colorkey((0,0,0))
 
 	surf_geom.blit( surf_grid, (0,0) ) #Re-use `surf_geom` for the final output
+	surf_geom = surf_geom.subsurface( BLUR_PAD,BLUR_PAD, RES,RES )
 	surf_sm = pygame.transform.smoothscale(surf_geom,(128,128))
 
 	PATH_PNG    = f"output/{geom.name}.png"
@@ -120,18 +123,20 @@ def save_all():
 		save(k)
 	print("Complete!")
 
-def draw( ind:int, with_geom=True,with_grid=True ):
+def draw( ind:int, with_geom=True,with_grid=True,with_drawbox=True ):
 	geom = geoms[ind]
 
-	GL.glViewport( 0,0, WINDOW_RES[0],WINDOW_RES[1] )
+	GL.glViewport( 0,0, RES+2*BLUR_PAD,RES+2*BLUR_PAD )
 
 	GL.glClear( GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT )
 
 	GL.glMatrixMode(GL.GL_PROJECTION)
 	GL.glLoadIdentity()
-	aspect = float(WINDOW_RES[0]) / float(WINDOW_RES[1])
 	sc = geom.view_scale
-	GL.glOrtho( -0.01*sc,1.01*sc*aspect, 1.01*sc,-0.01*sc, -1.0,1.0 )
+	units_per_px = sc / RES
+	lo = -BLUR_PAD * units_per_px
+	hi = ( RES + 2*BLUR_PAD ) * units_per_px
+	GL.glOrtho( lo,hi, hi,lo, -1.0,1.0 )
 
 	GL.glMatrixMode(GL.GL_MODELVIEW)
 	GL.glLoadIdentity()
@@ -140,7 +145,17 @@ def draw( ind:int, with_geom=True,with_grid=True ):
 		geom.draw()
 
 	if with_grid:
-		geom.draw_grid( 1.02*sc, 8.0 )
+		geom.draw_grid(8.0)
+
+	if with_drawbox:
+		GL.glLineWidth(1.0)
+		GL.glColor3f( 1.0, 1.0, 0.0 )
+		GL.glBegin(GL.GL_LINE_LOOP)
+		GL.glVertex2f( 0.0, 0.0 )
+		GL.glVertex2f( sc , 0.0 )
+		GL.glVertex2f( sc , sc  )
+		GL.glVertex2f( 0.0, sc  )
+		GL.glEnd()
 
 	pygame.display.flip()
 

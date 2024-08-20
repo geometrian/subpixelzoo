@@ -20,14 +20,18 @@ class Base:
 
 		self.grids = []
 
-		self.view_scale = 4.0
-		self.view_shift = ( 0.0, 0.0 )
+		self.view_scale = 4.1
+		self.view_shift = [ 0.05, 0.05 ]
 
 	def add( self:Self, sub:subpixel.Base ):
 		self.tile_subpixels.append(sub)
 
 	def add_grid( self:Self, rep:tuple[int,int], shift:vec2f=(0.0,0.0), color:Color=PURE_CYAN ):
 		self.grids.append(( tuple(rep), color, shift ))
+
+	def scale_view_by( self:Self, factor:float ):
+		self.view_scale *= factor
+		self.view_shift[0]*=factor; self.view_shift[1]*=factor
 
 	def draw( self:Self ):
 		for     j in range( -1, 8, 1 ):
@@ -43,10 +47,10 @@ class Base:
 					sub.draw()
 				GL.glPopMatrix()
 
-	def draw_grid( self:Self, size_view:float, line_width_px:float ):
+	def draw_grid( self:Self, line_width_px:float ):
 		( x,y, w,h ) = GL.glGetIntegerv(GL.GL_VIEWPORT)
 		assert w == h
-		units_per_px = size_view / w
+		units_per_px = self.view_scale / w
 		d = units_per_px * 0.5*line_width_px
 
 		GL.glLineWidth(line_width_px)
@@ -255,7 +259,7 @@ class SquareXO(SquareBase):
 
 		self.add_grid((3,3))
 
-		self.view_scale = 6
+		self.scale_view_by(1.5)
 
 
 
@@ -318,12 +322,16 @@ class PenTileDiamondOrthogonal(PenTileBase):
 class FilterBayer2Base(FilterBase):
 	def __init__( self:Self, name:str, colors:list[Color] ):
 		FilterBase.__init__( self, name, 1.0/2.0, (2.0,2.0) )
+
 		self.add(subpixel.Box( colors[0], (1.0,1.0), 0.8 ))
 		self.add(subpixel.Box( colors[1], (3.0,1.0), 0.8 ))
 		self.add(subpixel.Box( colors[2], (1.0,3.0), 0.8 ))
 		self.add(subpixel.Box( colors[3], (3.0,3.0), 0.8 ))
+
 		self.add_grid((2,2))
-		self.view_scale = 8.0
+
+		self.scale_view_by(2.0)
+
 class FilterGRBG(FilterBayer2Base):
 	def __init__( self:Self ): FilterBayer2Base.__init__( self, "GRBG", [GREEN,RED,BLUE,GREEN] )
 class FilterWRBG(FilterBayer2Base):
@@ -338,11 +346,15 @@ class FilterCYYM(FilterBayer2Base):
 class FilterBayer4Base(FilterBase):
 	def __init__( self:Self, name:str, colors:list[Color] ):
 		FilterBase.__init__( self, name, 1.0/2.0, (4.0,4.0) )
+
 		for     j in range(4):
 			for i in range(4):
 				self.add(subpixel.Box( colors[j][i], (2*i+1,2*j+1), 0.8 ))
+
 		self.add_grid((4,4))
-		self.view_scale = 8.0
+
+		self.scale_view_by(2.0)
+
 class FilterKodakRGBW4a(FilterBayer4Base):
 	def __init__( self:Self ):
 		FilterBayer4Base.__init__( self, "KodakRGBW4a", [
@@ -371,6 +383,7 @@ class FilterKodakRGBW4c(FilterBayer4Base):
 class FilterFujiXTrans(FilterBase):
 	def __init__( self:Self ):
 		FilterBase.__init__( self, "FujiXTrans", 1.0/2.0, (6.0,6.0) )
+
 		x=0; y=0
 		for ch in "GBGGRG\nRGRBGB\nGBGGRG\nGRGGBG\nBGBRGR\nGRGGBG":
 			if ch == "\n":
@@ -381,20 +394,25 @@ class FilterFujiXTrans(FilterBase):
 				else          : col = BLUE
 				self.add(subpixel.Box( col, (2*x+1,2*y+1), 0.6 ))
 				x += 1
+
 		self.add_grid((6,6))
-		self.view_scale = 12.0
+
+		self.scale_view_by(3.0)
 
 class FilterFujiEXR(FilterBase):
 	def __init__( self:Self ):
 		FilterBase.__init__( self, "FujiEXR", 1.0, (2.0,2.0) )
+
 		for dx, dy in ( (0.0,0.0), (0.5,0.5) ):
 			self.add(subpixel.Circle( RED  , (dx+0.5,dy+0.5), 0.25 ))
 			self.add(subpixel.Circle( GREEN, (dx+1.5,dy+0.5), 0.25 ))
 			self.add(subpixel.Circle( GREEN, (dx+0.5,dy+1.5), 0.25 ))
 			self.add(subpixel.Circle( BLUE , (dx+1.5,dy+1.5), 0.25 ))
+
 		self.add_grid( (2,2), (0.5,0.5), DARK_CYAN )
 		self.add_grid( (2,2) )
-		self.view_scale = 5.0
+
+		self.scale_view_by( 5.0 / 4.0 )
 
 class FilterAlternateRGWRGB(FilterBase):
 	def __init__( self:Self ):
@@ -432,7 +450,7 @@ class TriangleHorizDotsRGB(TriangleBase):
 		SC = 0.5
 		TriangleBase.__init__( self, "HorizDotsRGB", SC, (SC*3.0,SC*3.0**0.5) )
 
-		dx=0.0; dy=0.5
+		dx=0.0; dy=0.57
 
 		self.add(subpixel.Circle( RED  , (dx+0.0,dy+0.0), 0.42 ))
 		self.add(subpixel.Circle( GREEN, (dx+1.0,dy+0.0), 0.42 ))
@@ -443,8 +461,6 @@ class TriangleHorizDotsRGB(TriangleBase):
 		self.add(subpixel.Circle( GREEN, (dx+2.5,dy+0.5*3.0**0.5), 0.42 ))
 
 		self.add_grid((3,3))
-
-		self.view_scale = 4.0
 
 class TriangleHorizDotsDiagonalRGB(TriangleBase):
 	def __init__( self:Self ):
@@ -472,8 +488,6 @@ class TriangleHorizDotsDiagonalRGB(TriangleBase):
 
 		#self.add_grid((3,3))
 
-		#self.view_scale = 4.0
-
 class TriangleVertDotsRGB(TriangleBase):
 	def __init__( self:Self ):
 		SC = 0.5
@@ -492,8 +506,6 @@ class TriangleVertDotsRGB(TriangleBase):
 		self.add(subpixel.Circle( GREEN, (dx+0.5*3.0**0.5,dy+2.5), 0.42 ))
 
 		self.add_grid((3,3))
-
-		self.view_scale = 4.0
 
 class TriangleVertDots23BGR(TriangleBase):
 	def __init__( self:Self ):
@@ -525,8 +537,7 @@ class TriangleVertDots23BGR(TriangleBase):
 		self.add_grid( (4,3), (0.0,0.0), DARK_CYAN )
 		self.add_grid( (3,2), (0.0,0.0)            )
 
-		self.view_scale = 7.0
-		self.view_shift = ( 0.1, 0.1 )
+		self.scale_view_by( 7.0 / 4.0 )
 
 class TriangleVertSetsRGB(TriangleBase):
 	def __init__( self:Self ):
@@ -544,7 +555,7 @@ class TriangleVertSetsRGB(TriangleBase):
 
 		self.add_grid((2,1))
 
-		self.view_scale = 5.0
+		self.scale_view_by( 5.0 / 4.0 )
 
 
 
