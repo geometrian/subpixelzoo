@@ -24,7 +24,12 @@ pygame.font.init()
 
 
 
-PATH_LIBWEBP:str|None = "D:/tools/image processing/convert webp/libwebp-1.2.0-windows-x64/"
+if sys.platform in ( "win32", "win64" ):
+	PATH_LIBWEBP = "D:/tools/image processing/convert webp/libwebp-1.2.0-windows-x64/"
+	PATH_CWEBP = PATH_LIBWEBP + "bin/cwebp.exe"
+else:
+	#`sudo apt install webp` (`cwebp`)
+	PATH_CWEBP = "cwebp"
 
 RES = 1024
 BLUR = 8
@@ -107,16 +112,12 @@ def save( ind:int ):
 	pygame.image.save( surf_geom, PATH_PNG    )
 	pygame.image.save( surf_sm  , PATH_PNG_SM )
 
-	if PATH_LIBWEBP == None: return
-	PATH_CWEBP:str|None = PATH_LIBWEBP + "bin/cwebp.exe"
-
 	PATH_WEBP    = f"output/{geom.name}.webp"
 	PATH_WEBP_SM = f"output/{geom.name}_sm.webp"
 
 	for path_in, path_out in ( (PATH_PNG,PATH_WEBP), (PATH_PNG_SM,PATH_WEBP_SM) ):
-		cmd = [ PATH_CWEBP, "-q","80", "-m 6", "\""+path_in+"\"", "-o","\""+path_out+"\"" ]
-		cmdstr = " ".join(cmd)
-		subprocess.Popen( cmdstr, stdout=subprocess.PIPE,stderr=subprocess.PIPE )
+		cmd = [ PATH_CWEBP, "-q","80", "-m","6", path_in, "-o",path_out ]
+		subprocess.run( cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE, check=True )
 
 def save_all():
 	for k in range( len(geoms) ):
