@@ -201,12 +201,12 @@ class SquareTiltVRGB(SquareBase):
 		self.add(subpixel.Box( BLUE , (7.5,1.0),(10.0, 3.5) ))
 		self.add_grid((1,1))
 
-class SquareClusterRBG(SquareBase):
+class SquareQDOLEDGen4(SquareBase):
 	def __init__( self:Self ):
-		SquareBase.__init__( self, "ClusterRBG", 1.0/12.0 )
-		self.add(subpixel.Box( RED  , (1.0,1.0),( 6.0, 6.5) ))
-		self.add(subpixel.Box( BLUE , (7.0,1.0),(10.5, 6.0) ))
-		self.add(subpixel.Box( GREEN, (1.5,8.0),( 8.0,11.5) ))
+		SquareBase.__init__( self, "QDOLEDGen4", 1.0/12.0 )
+		self.add(subpixel.Box( RED  , (1.0,6.0),( 6.0,11.5) ))
+		self.add(subpixel.Box( BLUE , (7.0,6.0),(10.5,11.0) ))
+		self.add(subpixel.Box( GREEN, (1.5,1.0),( 8.0, 4.5) ))
 		self.add_grid((1,1))
 
 class SquareVBGR(SquareBase):
@@ -576,7 +576,7 @@ all_geoms:list[Base] = [
 	SquareRGBY(),
 	SquareShiftRGBY(),
 	SquareVRGB(),
-	SquareClusterRBG(),
+	SquareQDOLEDGen4(),
 	SquareTiltVRGB(),
 	SquareVBGR(),
 	SquareSStripeRGB(),
