@@ -10,6 +10,13 @@
 			"request": "launch",
 			"program": "main.py",
 			"console": "integratedTerminal"
+		},
+		{
+			"name": "Python Debugger: Make Zine",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "publish_zine/make_zoo.py",
+			"console": "integratedTerminal"
 		}
 	]
 }
