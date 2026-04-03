@@ -29,11 +29,11 @@ sq.remove("sq_Basic.png")
 #	print(len(arr))
 #	print(arr)
 
-GRID_W = 6
+GRID_W = 7
 EMPTY_LEFT = 5
-EMPTY_ROWS = 5
-PAD     =  32
-IMG_RES = 512
+EMPTY_ROWS = 7
+IMG_RES = 512 // 4
+PAD     =  32 // 4
 
 grid = []
 row = []
@@ -49,13 +49,13 @@ if len(row) != 0:
 
 GRID = ( GRID_W, len(grid) )
 
-surf = pygame.Surface(( GRID[0]*IMG_RES+(GRID[0]-1)*PAD, GRID[1]*IMG_RES+(GRID[1]-1)*PAD ))
+surf = pygame.Surface(( GRID[0]*IMG_RES+(GRID[0]+1)*PAD, GRID[1]*IMG_RES+(GRID[1]+1)*PAD ))
 surf.fill(( 32, 32, 32 ))
 for j,row in enumerate(grid):
 	for i,item in enumerate(row):
 		if item == None: continue
-		x = i*( IMG_RES + PAD )
-		y = j*( IMG_RES + PAD )
+		x = PAD + i*( IMG_RES + PAD )
+		y = PAD + j*( IMG_RES + PAD )
 		img = pygame.transform.smoothscale( pygame.image.load(IMGS_DIR+item), (IMG_RES,IMG_RES) )
 		surf.blit( img, (x,y) )
-pygame.image.save( surf, "publish_zine/background.png" )
+pygame.image.save( surf, "publish_zine/background_raw.png" )

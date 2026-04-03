@@ -3,4 +3,6 @@ __pycache__/
 .vscode/settings.json
 
 output/
-publish_zine/background.png
+publish_zine/background*.png
+publish_zine/zine_page.pdf
+
