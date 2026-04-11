@@ -271,6 +271,20 @@ class SquareXO(SquareBase):
 
 
 
+class PenTilePrototype(PenTileBase):
+	def __init__( self:Self ):
+		PenTileBase.__init__( self, "Prototype", 1.0, (1.0,1.0) )
+
+		m2 = 0.04
+		m3 = 0.05
+		self.add(subpixel.Diamond( BLUE,  (0.5,0.5), (0.5-m3)-(0+m2)                              ))
+		self.add(subpixel.Polygon( RED,   [(0.0  +m2,0.5  -m3),(0.5-m3,0+m2),(0    +m2,0    +m2)] ))
+		self.add(subpixel.Polygon( RED,   [(1-0.5+m3,1    -m2),(1  -m2,1-m2),(1    -m2,1-0.5+m3)] ))
+		self.add(subpixel.Polygon( GREEN, [(0    +m2,1    -m2),(0.5-m3,1-m2),(0    +m2,1-0.5+m3)] ))
+		self.add(subpixel.Polygon( GREEN, [(1    -m2,1-0.5-m3),(1  -m2,0+m2),(1-0.5+m3,0    +m2)] ))
+
+		self.add_grid((1,1))
+
 class PenTileAlternateRGBG(PenTileBase):
 	def __init__( self:Self ):
 		PenTileBase.__init__( self, "AlternateRGBG", 1.0/6.0, (2.0,2.0) )
@@ -584,6 +598,7 @@ all_geoms:list[Base] = [
 	SquareShiftSStripeRGB(),
 	SquareXO(),
 
+	PenTilePrototype(),
 	PenTileAlternateRGBG(),
 	PenTileAlternateRGBW(),
 	PenTileDiamond(),

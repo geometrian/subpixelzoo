@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import subprocess
 import sys
@@ -106,6 +108,8 @@ def save( ind:int ):
 	surf_geom.blit( surf_grid, (0,0) ) #Re-use `surf_geom` for the final output
 	surf_geom = surf_geom.subsurface( BLUR_PAD,BLUR_PAD, RES,RES )
 	surf_sm = pygame.transform.smoothscale(surf_geom,(128,128))
+
+	os.makedirs( "output", exist_ok=True )
 
 	PATH_PNG    = f"output/{geom.name}.png"
 	PATH_PNG_SM = f"output/{geom.name}_sm.png"
